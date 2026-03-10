@@ -1,4 +1,4 @@
-import { LiquidBackground, PixelPolaroid } from '../components/home';
+import { LiquidBackground, PolaroidScene3D } from '../components/home';
 
 // Tool definitions
 const tools = [
@@ -31,7 +31,7 @@ export function Home() {
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-16">
         {/* Title */}
-        <header className="text-center mb-16">
+        <header className="text-center mb-8">
           <h1
             className="text-4xl md:text-6xl font-bold text-white/90 tracking-tight mb-3"
             style={{
@@ -49,29 +49,13 @@ export function Home() {
           </p>
         </header>
 
-        {/* Pixel Polaroid cards */}
-        <div className="flex flex-col md:flex-row justify-center items-center gap-12 md:gap-8">
-          {tools.map((tool, index) => (
-            <div
-              key={tool.id}
-              className="transform transition-transform duration-500 hover:scale-105"
-              style={{
-                transform: `rotate(${(index - 1) * 5}deg)`,
-                animationDelay: `${index * 0.2}s`,
-              }}
-            >
-              <PixelPolaroid
-                tool={tool}
-                index={index}
-                width={160}
-                height={200}
-              />
-            </div>
-          ))}
+        {/* 3D Scene with all polaroids */}
+        <div className="w-full max-w-5xl">
+          <PolaroidScene3D tools={tools} />
         </div>
 
         {/* Privacy badge */}
-        <div className="mt-20">
+        <div className="mt-8">
           <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             <span className="text-sm text-white/60">
@@ -81,7 +65,7 @@ export function Home() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-12 text-center">
+        <footer className="mt-8 text-center">
           <p className="text-sm text-white/30">Made for instant photo lovers</p>
         </footer>
       </div>
