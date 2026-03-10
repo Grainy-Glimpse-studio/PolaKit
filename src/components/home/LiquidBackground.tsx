@@ -254,6 +254,22 @@ export function LiquidBackground({ introPhase = 'main' }: LiquidBackgroundProps)
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0, 0, width, height);
 
+      // In intro phase, don't draw (3D fake orb is visible instead)
+      if (phase === 'intro') {
+        // Still update particle positions so they're ready to explode from mouse position
+        particlesRef.current.forEach((particle) => {
+          // Keep particles clustered at mouse for seamless transition
+          const targetX = mouseRef.current.x > 0 ? mouseRef.current.x : width / 2;
+          const targetY = mouseRef.current.y > 0 ? mouseRef.current.y : height / 2;
+          particle.x = targetX;
+          particle.y = targetY;
+          particle.targetX = targetX;
+          particle.targetY = targetY;
+        });
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
       // Update and draw particles
       particlesRef.current.forEach((particle) => {
         updateParticle(particle, width, height, time, phase, explosionProgress);
