@@ -264,6 +264,7 @@ function AnimatedBlock({
 
   const offsetRef = useRef({ x: 0, y: 0, z: 0 });
   const wasInsideRef = useRef(false);
+  const floatFadeRef = useRef(0); // Fade in floating effects gradually
 
   // Random explosion direction
   const explosionDir = useMemo(() => ({
@@ -307,7 +308,10 @@ function AnimatedBlock({
 
       // Phase 2: Settle to final position (0.2 - 1.0)
       const settleT = Math.max(0, (t - 0.2) / 0.8);
-      const settleEase = easeOutCubic(settleT);
+      let settleEase = easeOutCubic(settleT);
+
+      // Snap to 1 when very close to avoid floating point precision jump
+      if (settleEase > 0.999) settleEase = 1;
 
       // Explosion offset fades as we settle
       const explosionFade = 1 - settleEase;
@@ -384,9 +388,12 @@ function AnimatedBlock({
       const subtleFloatY = Math.sin(time * 0.6 + floatPhase * 1.3) * 0.008;
       const subtleFloatX = Math.cos(time * 0.5 + floatPhase * 0.9) * 0.006;
 
-      targetX += offsetRef.current.x + subtleFloatX;
-      targetY += offsetRef.current.y + subtleFloatY;
-      targetZ += offsetRef.current.z + subtleFloatZ;
+      // Gradually fade in floating effects to avoid jump when entering main phase
+      floatFadeRef.current = Math.min(1, floatFadeRef.current + 0.02);
+
+      targetX += (offsetRef.current.x + subtleFloatX) * floatFadeRef.current;
+      targetY += (offsetRef.current.y + subtleFloatY) * floatFadeRef.current;
+      targetZ += (offsetRef.current.z + subtleFloatZ) * floatFadeRef.current;
     }
 
     meshRef.current.position.set(targetX, targetY, targetZ);
