@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+/* Google Fonts - Caveat for handwriting style, Press Start 2P for pixel text */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Press+Start+2P&display=swap');
+
+:root {
+  --rainbow-1: #FF6B6B;
+  --rainbow-2: #FFE66D;
+  --rainbow-3: #4ECDC4;
+  --rainbow-4: #45B7D1;
+  --rainbow-5: #96CEB4;
+}
+
+html {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  background-color: #FAF8F5;
+  color: #2D2D2D;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Polaroid card styles */
+.polaroid-card {
+  background: #FEFEFE;
+  padding: 12px 12px 48px 12px;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center center;
+}
+
+.polaroid-card:hover {
+  z-index: 10;
+}
+
+/* Subtle texture overlay */
+.texture-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* Rainbow stripe - Polaroid classic */
+.rainbow-stripe {
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--rainbow-1) 0%,
+    var(--rainbow-1) 20%,
+    var(--rainbow-2) 20%,
+    var(--rainbow-2) 40%,
+    var(--rainbow-3) 40%,
+    var(--rainbow-3) 60%,
+    var(--rainbow-4) 60%,
+    var(--rainbow-4) 80%,
+    var(--rainbow-5) 80%,
+    var(--rainbow-5) 100%
+  );
+}
+
+/* Handwritten label style */
+.handwritten {
+  font-family: 'Caveat', cursive;
+  letter-spacing: 0.5px;
+}
+
+/* Tape effect for decoration */
+.tape {
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.6) 0%,
+    rgba(255,255,255,0.3) 50%,
+    rgba(255,255,255,0.6) 100%
+  );
+  backdrop-filter: blur(1px);
+}
+
+/* Scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Floating animation for decorative elements */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-5px) rotate(1deg); }
+  75% { transform: translateY(5px) rotate(-1deg); }
+}
+
+.gentle-float {
+  animation: gentle-float 8s ease-in-out infinite;
+}
+
+/* Cursor grab for draggable feel */
+.cursor-photo {
+  cursor: grab;
+}
+
+.cursor-photo:active {
+  cursor: grabbing;
+}
+
+/* 3D Floating animation for cards */
+@keyframes float3d {
+  0%, 100% {
+    transform: translateY(0) rotateX(5deg) rotateY(-5deg);
+  }
+  50% {
+    transform: translateY(-20px) rotateX(-5deg) rotateY(5deg);
+  }
+}
+
+/* Hue rotation for rainbow color cycling */
+@keyframes hue-rotate {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* Shine animation for card hover */
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(200%) rotate(45deg);
+  }
+}
+
+/* Pixel text style with glow and color cycling */
+.pixel-text {
+  font-family: 'Press Start 2P', monospace;
+  color: #FF6B6B;
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+  animation: hue-rotate 3s linear infinite;
+}
+
+/* 3D Polaroid card base styles */
+.polaroid-card-3d {
+  background: #FEFEFE;
+  transform-style: preserve-3d;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center center;
+}
+
+/* Dark theme body for home page liquid effect */
+.dark-liquid-bg {
+  background-color: #0a0a0a;
+}
+
+/* Glow border animation */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.2;
+    box-shadow:
+      0 0 10px rgba(255, 107, 107, 0.2),
+      0 0 20px rgba(78, 205, 196, 0.15),
+      0 0 30px rgba(69, 183, 209, 0.1);
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow:
+      0 0 20px rgba(255, 107, 107, 0.4),
+      0 0 40px rgba(78, 205, 196, 0.3),
+      0 0 60px rgba(69, 183, 209, 0.2);
+  }
+}
+
+.glow-border {
+  animation: glow-pulse 2s ease-in-out infinite;
+}

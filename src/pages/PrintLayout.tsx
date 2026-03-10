@@ -1,0 +1,174 @@
+import { useEffect } from 'react';
+import type { FrameType } from '@/types';
+import { usePrintLayout } from '@/hooks/usePrintLayout';
+import { DropZone } from '@/components/cropper';
+import {
+  PrintCanvas,
+  ImageList,
+  LayoutSettings,
+  PageNavigation,
+  ExportOptions,
+} from '@/components/print';
+import { Button, PageLayout, Panel } from '@/components/ui';
+
+interface PrintLayoutProps {
+  frameType?: FrameType;
+}
+
+export function PrintLayout({ frameType = 'polaroid' }: PrintLayoutProps) {
+  const {
+    images,
+    settings,
+    layout,
+    currentPage,
+    selectedImageId,
+    addImages,
+    removeImage,
+    clearImages,
+    setImageOffset,
+    selectImage,
+    updateSettings,
+    setCurrentPage,
+    nextPage,
+    prevPage,
+    exportPdf,
+  } = usePrintLayout();
+
+  useEffect(() => {
+    if (frameType !== settings.frameType) {
+      updateSettings({ frameType });
+    }
+  }, [frameType, settings.frameType, updateSettings]);
+
+  const headerActions = images.length > 0 ? (
+    <Button variant="ghost" size="sm" onClick={clearImages}>
+      Clear All
+    </Button>
+  ) : null;
+
+  return (
+    <PageLayout
+      title="Polaroid Print"
+      subtitle="Arrange & print your photos"
+      headerActions={headerActions}
+      accentColor="cyan"
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Sidebar - Images */}
+        <div className="lg:col-span-3 space-y-4">
+          <Panel title="Photos">
+            <div className="space-y-4">
+              <DropZone onFilesSelect={addImages} compact />
+
+              {images.length > 0 && (
+                <ImageList
+                  images={images}
+                  selectedImageId={selectedImageId}
+                  onSelect={selectImage}
+                  onRemove={removeImage}
+                />
+              )}
+            </div>
+          </Panel>
+
+          {images.length === 0 && (
+            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-4 border border-cyan-100">
+              <div className="text-center">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-cyan-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-cyan-700 font-medium">No photos yet</p>
+                <p className="text-sm text-cyan-600 mt-1">Add photos to start creating your layout</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Center - Canvas */}
+        <div className="lg:col-span-6 space-y-4">
+          {layout && images.length > 0 ? (
+            <>
+              <Panel noPadding className="overflow-hidden">
+                <div className="p-4 bg-gray-100">
+                  <PrintCanvas
+                    images={images}
+                    settings={settings}
+                    layout={layout}
+                    currentPage={currentPage}
+                    selectedImageId={selectedImageId}
+                    onImageSelect={selectImage}
+                    onImageOffsetChange={setImageOffset}
+                  />
+                </div>
+              </Panel>
+
+              <PageNavigation
+                currentPage={currentPage}
+                totalPages={layout.totalPages}
+                onPrevPage={prevPage}
+                onNextPage={nextPage}
+                onGoToPage={setCurrentPage}
+              />
+            </>
+          ) : (
+            <Panel noPadding>
+              <div className="p-6">
+                <DropZone onFilesSelect={addImages} />
+              </div>
+            </Panel>
+          )}
+        </div>
+
+        {/* Right Sidebar - Settings */}
+        <div className="lg:col-span-3 space-y-4">
+          <Panel title="Layout">
+            <LayoutSettings settings={settings} onUpdate={updateSettings} />
+          </Panel>
+
+          {layout && images.length > 0 && (
+            <Panel title="Export">
+              <ExportOptions
+                onExportPdf={exportPdf}
+                disabled={images.length === 0}
+              />
+            </Panel>
+          )}
+
+          {layout && (
+            <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Layout Info</h4>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Columns</span>
+                  <span className="font-medium text-gray-700">{layout.columns}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Rows</span>
+                  <span className="font-medium text-gray-700">{layout.rows}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Per Page</span>
+                  <span className="font-medium text-gray-700">{layout.perPage}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Pages</span>
+                  <span className="font-medium text-gray-700">{layout.totalPages}</span>
+                </div>
+                <div className="col-span-2 pt-2 border-t border-gray-200 mt-1">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Image Size</span>
+                    <span className="font-medium text-gray-700">
+                      {layout.imageWidth.toFixed(1)} × {layout.imageHeight.toFixed(1)} mm
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </PageLayout>
+  );
+}
