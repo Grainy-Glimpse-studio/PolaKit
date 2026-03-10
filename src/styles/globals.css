@@ -203,3 +203,88 @@ body {
 .glow-border {
   animation: glow-pulse 2s ease-in-out infinite;
 }
+
+/* Neon tube flicker animation */
+@keyframes neon-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    text-shadow:
+      0 0 5px #fff,
+      0 0 10px #fff,
+      0 0 20px #ff6b6b,
+      0 0 40px #ff6b6b,
+      0 0 60px #ff6b6b,
+      0 0 80px #ff6b6b,
+      0 0 100px #ff6b6b;
+  }
+  20%, 24%, 55% {
+    text-shadow:
+      0 0 2px #fff,
+      0 0 5px #fff,
+      0 0 10px #ff6b6b,
+      0 0 20px #ff6b6b,
+      0 0 30px #ff6b6b;
+  }
+}
+
+.neon-title {
+  animation: neon-flicker 3s infinite alternate;
+}
+
+/* Physical neon tube text effect with color cycling */
+.neon-tube-text {
+  color: #fff;
+  -webkit-text-stroke: 1px currentColor;
+  animation: neon-color-cycle 15s infinite, neon-subtle-flicker 4s infinite;
+}
+
+@keyframes neon-color-cycle {
+  /* Red */
+  0%, 100% {
+    color: #ffe6e6;
+    text-shadow:
+      0 0 2px #fff, 0 0 4px #fff,
+      0 0 8px #ff6b6b, 0 0 15px #ff6b6b, 0 0 25px #ff6b6b,
+      0 0 40px #ff6b6b, 0 0 60px rgba(255, 107, 107, 0.6);
+  }
+  /* Yellow */
+  20% {
+    color: #fffde6;
+    text-shadow:
+      0 0 2px #fff, 0 0 4px #fff,
+      0 0 8px #ffe66d, 0 0 15px #ffe66d, 0 0 25px #ffe66d,
+      0 0 40px #ffe66d, 0 0 60px rgba(255, 230, 109, 0.6);
+  }
+  /* Teal */
+  40% {
+    color: #e6fffc;
+    text-shadow:
+      0 0 2px #fff, 0 0 4px #fff,
+      0 0 8px #4ecdc4, 0 0 15px #4ecdc4, 0 0 25px #4ecdc4,
+      0 0 40px #4ecdc4, 0 0 60px rgba(78, 205, 196, 0.6);
+  }
+  /* Blue */
+  60% {
+    color: #e6f6ff;
+    text-shadow:
+      0 0 2px #fff, 0 0 4px #fff,
+      0 0 8px #45b7d1, 0 0 15px #45b7d1, 0 0 25px #45b7d1,
+      0 0 40px #45b7d1, 0 0 60px rgba(69, 183, 209, 0.6);
+  }
+  /* Mint */
+  80% {
+    color: #eefffa;
+    text-shadow:
+      0 0 2px #fff, 0 0 4px #fff,
+      0 0 8px #96ceb4, 0 0 15px #96ceb4, 0 0 25px #96ceb4,
+      0 0 40px #96ceb4, 0 0 60px rgba(150, 206, 180, 0.6);
+  }
+}
+
+@keyframes neon-subtle-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.88;
+  }
+}

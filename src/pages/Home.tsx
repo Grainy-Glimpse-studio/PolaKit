@@ -32,16 +32,7 @@ export function Home() {
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-16">
         {/* Title */}
         <header className="text-center mb-8">
-          <h1
-            className="text-4xl md:text-6xl font-bold text-white/90 tracking-tight mb-3"
-            style={{
-              textShadow: `
-                0 0 20px rgba(255, 107, 107, 0.5),
-                0 0 40px rgba(78, 205, 196, 0.3),
-                0 0 60px rgba(69, 183, 209, 0.2)
-              `,
-            }}
-          >
+          <h1 className="neon-tube-text text-4xl md:text-6xl font-bold tracking-tight mb-3">
             PolaKit
           </h1>
           <p className="text-lg text-white/50 font-light tracking-wide">
