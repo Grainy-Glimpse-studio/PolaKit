@@ -295,26 +295,22 @@ function AnimatedBlock({
       scale = 1 + breathe;
 
     } else if (phase === 'exploding' || phase === 'forming') {
-      // Unified explosion + forming animation for smoother transition
-      const t = animationProgress;
+      // Unified explosion + forming animation
+      const t = Math.min(1, animationProgress);
 
-      // Elastic ease out for natural settle
-      const elasticSettle = (x: number) => {
-        if (x === 0 || x === 1) return x;
-        const bounce = Math.pow(2, -8 * x) * Math.sin((x * 8 - 0.75) * Math.PI / 2);
-        return x + bounce * 0.15;
-      };
+      // Smooth easing function (ease out cubic) - no bounce
+      const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
 
-      // Phase 1: Explosion (0 - 0.35)
-      const explosionT = Math.min(1, t / 0.35);
-      const explosionEase = 1 - Math.pow(1 - explosionT, 4);
+      // Phase 1: Explosion outward (0 - 0.3)
+      const explosionT = Math.min(1, t / 0.3);
+      const explosionEase = easeOutCubic(explosionT);
 
-      // Phase 2: Settle to final position (0.25 - 1.0) with overlap
-      const settleT = Math.max(0, (t - 0.25) / 0.75);
-      const settleEase = elasticSettle(settleT);
+      // Phase 2: Settle to final position (0.2 - 1.0)
+      const settleT = Math.max(0, (t - 0.2) / 0.8);
+      const settleEase = easeOutCubic(settleT);
 
-      // Calculate explosion offset (fades as we settle)
-      const explosionFade = 1 - settleEase * 0.9;
+      // Explosion offset fades as we settle
+      const explosionFade = 1 - settleEase;
       const explodeX = explosionDir.x * explosionEase * explosionFade;
       const explodeY = explosionDir.y * explosionEase * explosionFade;
       const explodeZ = explosionDir.z * explosionEase * explosionFade;
@@ -324,15 +320,13 @@ function AnimatedBlock({
       targetY = cubePos[1] + explodeY + (finalPos[1] - cubePos[1]) * settleEase;
       targetZ = cubePos[2] + explodeZ + (finalPos[2] - cubePos[2]) * settleEase;
 
-      // Rotation: spin during explosion, settle to zero
-      const rotationFade = 1 - settleEase;
-      rotX = explosionDir.rotX * explosionEase * rotationFade;
-      rotY = explosionDir.rotY * explosionEase * rotationFade;
-      rotZ = explosionDir.rotZ * explosionEase * rotationFade;
+      // Rotation settles to zero
+      rotX = explosionDir.rotX * explosionEase * explosionFade;
+      rotY = explosionDir.rotY * explosionEase * explosionFade;
+      rotZ = explosionDir.rotZ * explosionEase * explosionFade;
 
-      // Slight scale pulse during explosion
-      const scalePulse = 1 + Math.sin(explosionT * Math.PI) * 0.1 * (1 - settleT);
-      scale = scalePulse;
+      // Scale stays at 1
+      scale = 1;
 
     } else {
       // Main phase - normal polaroid behavior
@@ -607,10 +601,11 @@ function NeonText({
     if (!textRef.current) return;
     const time = state.clock.elapsedTime;
 
-    // Fade in during forming phase
+    // Fade in during exploding/forming phase
     let opacity = 0;
-    if (phase === 'forming') {
-      opacity = Math.max(0, (animationProgress - 0.5) / 0.5);
+    if (phase === 'exploding' || phase === 'forming') {
+      // Start fading in at 35%, fully visible at 95%
+      opacity = Math.max(0, Math.min(1, (animationProgress - 0.35) / 0.6));
     } else if (phase === 'main') {
       opacity = 1;
     }
@@ -623,7 +618,7 @@ function NeonText({
     material.transparent = true;
   });
 
-  if (phase === 'intro' || phase === 'exploding') return null;
+  if (phase === 'intro') return null;
 
   return (
     <Text
@@ -968,6 +963,30 @@ function Scene({ tools, onExplosion }: { tools: Tool[]; onExplosion?: () => void
             ))}
           </group>
         )}
+
+        {/* Text labels - fade in during explosion */}
+        {(phase === 'exploding' || phase === 'forming') && tools.map((tool, cardIndex) => (
+          <group key={`text-${tool.id}`}>
+            <NeonText
+              text={tool.name}
+              yOffset={0.45}
+              xOffset={cardIndex === 1 ? -0.04 : cardIndex === 2 ? -0.11 : 0}
+              fontSize={0.29}
+              index={cardIndex}
+              isHovered={false}
+              cardPosition={cardPositions[cardIndex]}
+            />
+            <NeonText
+              text={tool.subtitle}
+              yOffset={-0.05}
+              xOffset={cardIndex === 1 ? -0.04 : cardIndex === 2 ? -0.11 : 0}
+              fontSize={0.13}
+              index={cardIndex + 10}
+              isHovered={false}
+              cardPosition={cardPositions[cardIndex]}
+            />
+          </group>
+        ))}
 
         {/* Main phase - grouped cards with full interactivity */}
         {phase === 'main' && tools.map((tool, cardIndex) => (
