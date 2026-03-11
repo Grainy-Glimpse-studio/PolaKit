@@ -44,7 +44,11 @@ export function PixelBall({ color, canvasRef, isErasing, eraserPos, brushSize }:
   const animationRef = useRef<number>(0);
   const [ballState, setBallState] = useState<BallState | null>(null);
   const [isRespawning, setIsRespawning] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [isStopped, setIsStopped] = useState(false);
   const lastClickTimeRef = useRef<number>(0);
+  const stoppedTimeRef = useRef<number>(0);
+  const hintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize ball with random position from top-left or top-right
   const initBall = useCallback((): BallState => {
@@ -250,6 +254,46 @@ export function PixelBall({ color, canvasRef, isErasing, eraserPos, brushSize }:
     };
   }, [ballState, isRespawning, checkCanvasCollision]);
 
+  // Detect when ball has stopped moving and show hint
+  useEffect(() => {
+    if (!ballState || isRespawning) {
+      setIsStopped(false);
+      return;
+    }
+
+    const { vx, vy } = ballState;
+    // Use higher threshold - ball is "stopped" when moving very slowly
+    const isCurrentlyStopped = Math.abs(vx) < 0.5 && Math.abs(vy) < 0.5;
+
+    if (isCurrentlyStopped && !isStopped) {
+      // Ball just stopped
+      setIsStopped(true);
+      stoppedTimeRef.current = Date.now();
+
+      // Show hint after 0.5 second of being stopped
+      hintTimeoutRef.current = setTimeout(() => {
+        setShowHint(true);
+      }, 500);
+    } else if (!isCurrentlyStopped && isStopped) {
+      // Ball started moving again - but keep hint visible for a while
+      setIsStopped(false);
+      if (hintTimeoutRef.current) {
+        clearTimeout(hintTimeoutRef.current);
+        hintTimeoutRef.current = null;
+      }
+      // Hide hint after 3 seconds of movement (not immediately)
+      hintTimeoutRef.current = setTimeout(() => {
+        setShowHint(false);
+      }, 3000);
+    }
+
+    return () => {
+      if (hintTimeoutRef.current) {
+        clearTimeout(hintTimeoutRef.current);
+      }
+    };
+  }, [ballState, isRespawning, isStopped]);
+
   // Handle eraser interaction
   useEffect(() => {
     if (!isErasing || !eraserPos || !ballState || isRespawning) return;
@@ -347,43 +391,70 @@ export function PixelBall({ color, canvasRef, isErasing, eraserPos, brushSize }:
   const { x, y, pixels } = ballState;
 
   return (
-    <div
-      ref={ballRef}
-      onClick={handleClick}
-      onMouseMove={handleMouseMove}
-      className="pixel-ball fixed cursor-pointer select-none"
-      style={{
-        left: x,
-        top: y,
-        width: BALL_SIZE,
-        height: BALL_SIZE,
-        zIndex: 100,
-        transform: 'translate3d(0,0,0)', // GPU acceleration
-      }}
-      title="Click to bounce, double-click to learn more"
-    >
-      {/* Render ball as pixel grid */}
-      <div className="relative w-full h-full">
-        {pixels.map((row, rowIdx) =>
-          row.map((pixel, colIdx) =>
-            pixel && (
-              <div
-                key={`${rowIdx}-${colIdx}`}
-                className="absolute"
-                style={{
-                  left: colIdx * PIXEL_SIZE,
-                  top: rowIdx * PIXEL_SIZE,
-                  width: PIXEL_SIZE,
-                  height: PIXEL_SIZE,
-                  backgroundColor: color,
-                  // Subtle pixel border for that classic look
-                  boxShadow: 'inset -1px -1px 0 rgba(0,0,0,0.2), inset 1px 1px 0 rgba(255,255,255,0.2)',
-                }}
-              />
+    <>
+      <div
+        ref={ballRef}
+        onClick={handleClick}
+        onMouseMove={handleMouseMove}
+        className="pixel-ball fixed cursor-pointer select-none"
+        style={{
+          left: x,
+          top: y,
+          width: BALL_SIZE,
+          height: BALL_SIZE,
+          zIndex: 100,
+          transform: 'translate3d(0,0,0)', // GPU acceleration
+        }}
+        title="Click to bounce, double-click to learn more"
+      >
+        {/* Render ball as pixel grid */}
+        <div className="relative w-full h-full">
+          {pixels.map((row, rowIdx) =>
+            row.map((pixel, colIdx) =>
+              pixel && (
+                <div
+                  key={`${rowIdx}-${colIdx}`}
+                  className="absolute"
+                  style={{
+                    left: colIdx * PIXEL_SIZE,
+                    top: rowIdx * PIXEL_SIZE,
+                    width: PIXEL_SIZE,
+                    height: PIXEL_SIZE,
+                    backgroundColor: color,
+                    // Subtle pixel border for that classic look
+                    boxShadow: 'inset -1px -1px 0 rgba(0,0,0,0.2), inset 1px 1px 0 rgba(255,255,255,0.2)',
+                  }}
+                />
+              )
             )
-          )
-        )}
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Hint text when ball is stopped */}
+      {showHint && (
+        <div
+          className="fixed pointer-events-none select-none animate-pulse"
+          style={{
+            left: x + BALL_SIZE / 2,
+            top: y - 24,
+            transform: 'translateX(-50%)',
+            zIndex: 99,
+          }}
+        >
+          <div
+            className="px-2 py-1 border-2 border-pixel-border bg-white/95 whitespace-nowrap"
+            style={{
+              fontFamily: "'Press Start 2P', monospace",
+              fontSize: '8px',
+              color: color,
+              textShadow: '1px 1px 0 rgba(0,0,0,0.1)',
+            }}
+          >
+            Trap me with strokes...
+          </div>
+        </div>
+      )}
+    </>
   );
 }
