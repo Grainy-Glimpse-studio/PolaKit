@@ -19,6 +19,7 @@ const defaultSettings: CropperSettings = {
   enablePerspective: true,
   cropBlackBorder: true,
   threshold: 180,
+  extractInnerImage: false,
   // 命名选项
   useGlobalPrefix: false,
   globalPrefix: 'Polaroid_',
@@ -107,6 +108,7 @@ export const useCropperStore = create<CropperStore>()(
           const result = await opencvWorkerService.processImage(img.file, {
             threshold: settings.threshold,
             enablePerspective: settings.enablePerspective,
+            extractInnerImage: settings.extractInnerImage,
           });
 
           set((state) => ({
@@ -145,6 +147,7 @@ export const useCropperStore = create<CropperStore>()(
         const result = await opencvWorkerService.processImage(image.file, {
           threshold: settings.threshold,
           enablePerspective: settings.enablePerspective,
+          extractInnerImage: settings.extractInnerImage,
         });
 
         set((state) => ({

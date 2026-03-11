@@ -114,7 +114,7 @@ function onCvReady() {
 setTimeout(loadOpenCV, 10);
 
 function processImage(imageData, options) {
-  const { threshold, enablePerspective } = options;
+  const { threshold, enablePerspective, extractInnerImage } = options;
 
   // Convert ImageData to Mat
   const img = cv.matFromImageData(imageData);
@@ -165,6 +165,13 @@ function processImage(imageData, options) {
     approx.delete();
   } else {
     result = simpleCrop(img, binary);
+  }
+
+  // If extractInnerImage is enabled, crop away the white Polaroid border
+  if (extractInnerImage) {
+    const innerResult = extractInner(result);
+    result.delete();
+    result = innerResult;
   }
 
   // Convert result Mat to ImageData
@@ -243,4 +250,111 @@ function simpleCrop(src, binary) {
   roi.copyTo(dst);
   roi.delete();
   return dst;
+}
+
+// Extract inner photo from Polaroid by removing white border
+function extractInner(src) {
+  self.postMessage({ type: 'log', message: 'Extracting inner image...' });
+
+  const width = src.cols;
+  const height = src.rows;
+
+  // Convert to grayscale
+  const gray = new cv.Mat();
+  cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+  // Invert and threshold to find dark (photo) regions against white border
+  // White border is ~255, photo area is darker
+  const binary = new cv.Mat();
+  cv.threshold(gray, binary, 240, 255, cv.THRESH_BINARY_INV);
+
+  // Morphological operations to clean up noise
+  const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(5, 5));
+  cv.morphologyEx(binary, binary, cv.MORPH_CLOSE, kernel);
+  cv.morphologyEx(binary, binary, cv.MORPH_OPEN, kernel);
+
+  // Find contours
+  const contours = new cv.MatVector();
+  const hierarchy = new cv.Mat();
+  cv.findContours(binary, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+  // Find largest contour (the inner photo)
+  let maxArea = 0;
+  let maxContourIdx = -1;
+  const minAreaRatio = 0.1; // Inner photo should be at least 10% of total area
+
+  for (let i = 0; i < contours.size(); i++) {
+    const area = cv.contourArea(contours.get(i));
+    if (area > maxArea && area > (width * height * minAreaRatio)) {
+      maxArea = area;
+      maxContourIdx = i;
+    }
+  }
+
+  let result;
+
+  if (maxContourIdx >= 0) {
+    // Try to get a rectangular approximation
+    const contour = contours.get(maxContourIdx);
+    const approx = new cv.Mat();
+    const epsilon = 0.02 * cv.arcLength(contour, true);
+    cv.approxPolyDP(contour, approx, epsilon, true);
+
+    if (approx.rows === 4) {
+      // Found a quadrilateral, do perspective transform
+      result = perspectiveTransform(src, approx);
+      self.postMessage({ type: 'log', message: 'Inner extracted with perspective transform' });
+    } else {
+      // Fall back to bounding rect
+      const rect = cv.boundingRect(contour);
+      // Add small padding
+      const pad = 2;
+      const x = Math.max(0, rect.x - pad);
+      const y = Math.max(0, rect.y - pad);
+      const w = Math.min(width - x, rect.width + pad * 2);
+      const h = Math.min(height - y, rect.height + pad * 2);
+
+      const roi = src.roi(new cv.Rect(x, y, w, h));
+      result = new cv.Mat();
+      roi.copyTo(result);
+      roi.delete();
+      self.postMessage({ type: 'log', message: 'Inner extracted with bounding rect' });
+    }
+
+    approx.delete();
+  } else {
+    // If no inner area found, estimate based on typical Polaroid proportions
+    // Polaroid typically has ~8% border on sides, ~8% on top, ~25% on bottom
+    self.postMessage({ type: 'log', message: 'No inner contour found, using estimated crop' });
+
+    const borderLeft = Math.round(width * 0.08);
+    const borderRight = Math.round(width * 0.08);
+    const borderTop = Math.round(height * 0.08);
+    const borderBottom = Math.round(height * 0.25);
+
+    const x = borderLeft;
+    const y = borderTop;
+    const w = width - borderLeft - borderRight;
+    const h = height - borderTop - borderBottom;
+
+    if (w > 0 && h > 0) {
+      const roi = src.roi(new cv.Rect(x, y, w, h));
+      result = new cv.Mat();
+      roi.copyTo(result);
+      roi.delete();
+    } else {
+      // Return original if dimensions are invalid
+      result = new cv.Mat();
+      src.copyTo(result);
+    }
+  }
+
+  // Clean up
+  gray.delete();
+  binary.delete();
+  kernel.delete();
+  contours.delete();
+  hierarchy.delete();
+
+  return result;
 }

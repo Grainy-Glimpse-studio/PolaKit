@@ -70,6 +70,7 @@ export interface CropperSettings {
   enablePerspective: boolean;
   cropBlackBorder: boolean;
   threshold: number;
+  extractInnerImage: boolean;  // 裁掉白边，只保留内部照片
   // 命名选项（可叠加）
   useGlobalPrefix: boolean;   // 是否使用全局前缀
   globalPrefix: string;       // 全局前缀内容

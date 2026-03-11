@@ -24,6 +24,7 @@ interface WorkerResponse {
 export interface ProcessOptions {
   threshold?: number;
   enablePerspective?: boolean;
+  extractInnerImage?: boolean;
 }
 
 export interface ProcessResult {
@@ -181,6 +182,7 @@ class OpenCVWorkerService {
           options: {
             threshold: options.threshold ?? 180,
             enablePerspective: options.enablePerspective ?? true,
+            extractInnerImage: options.extractInnerImage ?? false,
           },
         };
 
