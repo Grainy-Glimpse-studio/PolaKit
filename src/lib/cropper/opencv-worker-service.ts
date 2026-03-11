@@ -1,4 +1,21 @@
-import type { WorkerRequest, WorkerResponse } from '@/workers/opencv.worker';
+// Worker message types (duplicated to avoid importing from worker file)
+interface WorkerRequest {
+  type: 'process';
+  id: string;
+  imageData: ImageData;
+  options: {
+    threshold: number;
+    enablePerspective: boolean;
+  };
+}
+
+interface WorkerResponse {
+  type: 'ready' | 'result' | 'error' | 'progress';
+  id?: string;
+  imageData?: ImageData;
+  error?: string;
+  progress?: number;
+}
 
 export interface ProcessOptions {
   threshold?: number;
