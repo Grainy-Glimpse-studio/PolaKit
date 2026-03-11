@@ -66,7 +66,7 @@ export function StepSettings({
             <Toggle
               checked={settings.extractInnerImage}
               onChange={(checked) => onUpdateSettings({ extractInnerImage: checked })}
-              label="Extract Inner Image"
+              label="Extract Inner Image (white border only)"
               description="Remove the white Polaroid border, keep only the photo"
             />
           </div>
