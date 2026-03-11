@@ -27,19 +27,16 @@ export function StepSettings({
           </p>
         </div>
 
-        <div className="space-y-6">
-          {/* Perspective Correction */}
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <Toggle
-              checked={settings.enablePerspective}
-              onChange={(checked) => onUpdateSettings({ enablePerspective: checked })}
-              label="Perspective Correction"
-              description="Automatically straighten tilted photos"
-            />
-          </div>
+        {/* All toggles in one compact section */}
+        <div className="p-4 bg-gray-50 rounded-xl space-y-4">
+          <Toggle
+            checked={settings.enablePerspective}
+            onChange={(checked) => onUpdateSettings({ enablePerspective: checked })}
+            label="Perspective Correction"
+            description="Automatically straighten tilted photos"
+          />
 
-          {/* Crop Black Border */}
-          <div className="p-4 bg-gray-50 rounded-xl space-y-4">
+          <div className="border-t border-gray-200 pt-4">
             <Toggle
               checked={settings.cropBlackBorder}
               onChange={(checked) => onUpdateSettings({ cropBlackBorder: checked })}
@@ -49,7 +46,7 @@ export function StepSettings({
 
             {/* Border Sensitivity slider - only show when crop is enabled */}
             {settings.cropBlackBorder && (
-              <div className="pt-3 border-t border-gray-200">
+              <div className="mt-3 ml-14">
                 <Slider
                   label="Border Sensitivity"
                   value={settings.threshold}
@@ -58,15 +55,14 @@ export function StepSettings({
                   step={5}
                   onChange={(value) => onUpdateSettings({ threshold: value })}
                 />
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-gray-400 mt-1">
                   Lower values detect darker borders more aggressively
                 </p>
               </div>
             )}
           </div>
 
-          {/* Extract Inner Image */}
-          <div className="p-4 bg-gray-50 rounded-xl">
+          <div className="border-t border-gray-200 pt-4">
             <Toggle
               checked={settings.extractInnerImage}
               onChange={(checked) => onUpdateSettings({ extractInnerImage: checked })}

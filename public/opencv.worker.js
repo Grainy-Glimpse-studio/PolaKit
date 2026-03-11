@@ -263,69 +263,87 @@ function extractInner(src) {
   const gray = new cv.Mat();
   cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
 
-  // Invert and threshold to find dark (photo) regions against white border
-  // White border is ~255, photo area is darker
-  const binary = new cv.Mat();
-  cv.threshold(gray, binary, 240, 255, cv.THRESH_BINARY_INV);
+  // Apply Gaussian blur to reduce noise
+  const blurred = new cv.Mat();
+  cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
 
-  // Morphological operations to clean up noise
-  const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(5, 5));
-  cv.morphologyEx(binary, binary, cv.MORPH_CLOSE, kernel);
-  cv.morphologyEx(binary, binary, cv.MORPH_OPEN, kernel);
+  // Use Canny edge detection - more robust than simple thresholding
+  const edges = new cv.Mat();
+  cv.Canny(blurred, edges, 50, 150);
+
+  // Dilate edges to connect broken lines
+  const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(3, 3));
+  cv.dilate(edges, edges, kernel);
 
   // Find contours
   const contours = new cv.MatVector();
   const hierarchy = new cv.Mat();
-  cv.findContours(binary, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+  cv.findContours(edges, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
-  // Find largest contour (the inner photo)
-  let maxArea = 0;
-  let maxContourIdx = -1;
-  const minAreaRatio = 0.1; // Inner photo should be at least 10% of total area
+  self.postMessage({ type: 'log', message: 'Found ' + contours.size() + ' contours' });
+
+  // Find the best rectangular contour for the inner photo
+  // It should be roughly in the center and reasonably large
+  let bestContour = null;
+  let bestScore = 0;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const minArea = width * height * 0.15; // Inner photo should be at least 15% of image
+  const maxArea = width * height * 0.85; // And at most 85%
 
   for (let i = 0; i < contours.size(); i++) {
-    const area = cv.contourArea(contours.get(i));
-    if (area > maxArea && area > (width * height * minAreaRatio)) {
-      maxArea = area;
-      maxContourIdx = i;
-    }
-  }
+    const contour = contours.get(i);
+    const area = cv.contourArea(contour);
 
-  let result;
+    if (area < minArea || area > maxArea) continue;
 
-  if (maxContourIdx >= 0) {
-    // Try to get a rectangular approximation
-    const contour = contours.get(maxContourIdx);
+    // Approximate to polygon
     const approx = new cv.Mat();
     const epsilon = 0.02 * cv.arcLength(contour, true);
     cv.approxPolyDP(contour, approx, epsilon, true);
 
+    // We want 4 corners (rectangle)
     if (approx.rows === 4) {
-      // Found a quadrilateral, do perspective transform
-      result = perspectiveTransform(src, approx);
-      self.postMessage({ type: 'log', message: 'Inner extracted with perspective transform' });
-    } else {
-      // Fall back to bounding rect
       const rect = cv.boundingRect(contour);
-      // Add small padding
-      const pad = 2;
-      const x = Math.max(0, rect.x - pad);
-      const y = Math.max(0, rect.y - pad);
-      const w = Math.min(width - x, rect.width + pad * 2);
-      const h = Math.min(height - y, rect.height + pad * 2);
+      const rectCenterX = rect.x + rect.width / 2;
+      const rectCenterY = rect.y + rect.height / 2;
 
-      const roi = src.roi(new cv.Rect(x, y, w, h));
-      result = new cv.Mat();
-      roi.copyTo(result);
-      roi.delete();
-      self.postMessage({ type: 'log', message: 'Inner extracted with bounding rect' });
+      // Score based on: size (larger is better) and centrality
+      const distFromCenter = Math.sqrt(
+        Math.pow(rectCenterX - centerX, 2) + Math.pow(rectCenterY - centerY, 2)
+      );
+      const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
+      const centralityScore = 1 - (distFromCenter / maxDist);
+
+      // Aspect ratio check - inner photo is roughly square (0.8 to 1.2)
+      const aspectRatio = rect.width / rect.height;
+      const aspectScore = (aspectRatio >= 0.7 && aspectRatio <= 1.3) ? 1 : 0.5;
+
+      const score = (area / (width * height)) * centralityScore * aspectScore;
+
+      if (score > bestScore) {
+        bestScore = score;
+        if (bestContour) bestContour.delete();
+        bestContour = new cv.Mat();
+        approx.copyTo(bestContour);
+      }
     }
 
     approx.delete();
+  }
+
+  let result;
+
+  if (bestContour && bestScore > 0.1) {
+    self.postMessage({ type: 'log', message: 'Found inner rectangle, score: ' + bestScore.toFixed(3) });
+
+    // Use perspective transform for the detected quadrilateral
+    result = perspectiveTransform(src, bestContour);
+    bestContour.delete();
   } else {
-    // If no inner area found, estimate based on typical Polaroid proportions
-    // Polaroid typically has ~8% border on sides, ~8% on top, ~25% on bottom
-    self.postMessage({ type: 'log', message: 'No inner contour found, using estimated crop' });
+    // Fallback: use standard Polaroid proportions
+    // Classic Polaroid: ~8% border on top and sides, ~25% on bottom
+    self.postMessage({ type: 'log', message: 'Using estimated Polaroid proportions' });
 
     const borderLeft = Math.round(width * 0.08);
     const borderRight = Math.round(width * 0.08);
@@ -343,7 +361,6 @@ function extractInner(src) {
       roi.copyTo(result);
       roi.delete();
     } else {
-      // Return original if dimensions are invalid
       result = new cv.Mat();
       src.copyTo(result);
     }
@@ -351,7 +368,8 @@ function extractInner(src) {
 
   // Clean up
   gray.delete();
-  binary.delete();
+  blurred.delete();
+  edges.delete();
   kernel.delete();
   contours.delete();
   hierarchy.delete();
