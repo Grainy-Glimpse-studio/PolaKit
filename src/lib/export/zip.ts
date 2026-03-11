@@ -40,3 +40,16 @@ export async function downloadBlob(blob: Blob, filename: string): Promise<void> 
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+export async function createZip(
+  files: { name: string; blob: Blob }[]
+): Promise<Blob> {
+  const JSZip = (await import('jszip')).default;
+  const zip = new JSZip();
+
+  for (const file of files) {
+    zip.file(file.name, file.blob);
+  }
+
+  return zip.generateAsync({ type: 'blob' });
+}

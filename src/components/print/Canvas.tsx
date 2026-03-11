@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import type { PrintImage, PrintSettings, LayoutResult, Position } from '@/types';
 import { getImagePosition, PAPER_SIZES } from '@/lib/picture-print-engine/layout';
-import { useCanvasDrag } from '@/hooks/useCanvasDrag';
+import { usePrintCanvasDrag } from '@/hooks/usePrintCanvasDrag';
 import { drawImageCover } from '@/lib/utils/canvas';
 
 interface PrintCanvasProps {
@@ -39,6 +39,11 @@ export function PrintCanvas({
   useEffect(() => {
     const newLoadedImages = new Map<string, HTMLImageElement>();
     let loadCount = 0;
+
+    if (pageImages.length === 0) {
+      setLoadedImages(newLoadedImages);
+      return;
+    }
 
     pageImages.forEach((img) => {
       if (loadedImages.has(img.id)) {
@@ -148,20 +153,27 @@ export function PrintCanvas({
     []
   );
 
-  useCanvasDrag(canvasRef, getImageAtPoint, {
-    onDragStart: (id) => {
-      onImageSelect(id);
-    },
-    onDragMove: (id, delta) => {
-      const img = images.find((i) => i.id === id);
-      if (img) {
-        onImageOffsetChange(id, {
-          x: img.offset.x + delta.x / scale,
-          y: img.offset.y + delta.y / scale,
-        });
-      }
-    },
-  });
+  const { isDragging, handleMouseDown, handleTouchStart } = usePrintCanvasDrag(
+    canvasRef,
+    getImageAtPoint,
+    {
+      onDragStart: (id) => {
+        onImageSelect(id);
+      },
+      onDragMove: (id, delta) => {
+        const img = images.find((i) => i.id === id);
+        if (img) {
+          onImageOffsetChange(id, {
+            x: img.offset.x + delta.x / scale,
+            y: img.offset.y + delta.y / scale,
+          });
+        }
+      },
+      onClick: (id) => {
+        onImageSelect(id);
+      },
+    }
+  );
 
   return (
     <div className="flex justify-center">
@@ -169,10 +181,15 @@ export function PrintCanvas({
         ref={canvasRef}
         width={canvasWidth}
         height={canvasHeight}
-        className="border border-gray-300 shadow-lg cursor-move"
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        className={`border border-gray-300 shadow-lg select-none ${
+          isDragging ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
         style={{
           width: `${paper.width * 1.5}px`,
           height: `${paper.height * 1.5}px`,
+          touchAction: 'none',
         }}
       />
     </div>

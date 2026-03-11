@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import type { PrintState, PrintImage, PrintSettings, LayoutResult, Position } from '@/types';
+import { devtools, persist } from 'zustand/middleware';
+import type { PrintState, PrintImage, PrintSettings, LayoutResult, Position, CustomPaperSize } from '@/types';
 import { calculateLayout, calculateTotalPages, PAPER_SIZES } from '@/lib/picture-print-engine/layout';
 
 interface PrintActions {
@@ -8,15 +8,23 @@ interface PrintActions {
   removeImage: (id: string) => void;
   clearImages: () => void;
   setImageOffset: (id: string, offset: Position) => void;
+  resetImageOffset: (id: string) => void;
   selectImage: (id: string | null) => void;
   updateSettings: (settings: Partial<PrintSettings>) => void;
   setCurrentPage: (page: number) => void;
   nextPage: () => void;
   prevPage: () => void;
   recalculateLayout: () => void;
+  addCustomPaperSize: (name: string, width: number, height: number) => void;
+  removeCustomPaperSize: (id: string) => void;
+  applyCustomPaperSize: (id: string) => void;
 }
 
-type PrintStore = PrintState & PrintActions;
+interface PrintStoreState extends PrintState {
+  customPaperSizes: CustomPaperSize[];
+}
+
+type PrintStore = PrintStoreState & PrintActions;
 
 const defaultSettings: PrintSettings = {
   paperType: 'a4',
@@ -26,119 +34,189 @@ const defaultSettings: PrintSettings = {
   gap: 2,
   padding: 10,
   showCutMarks: true,
+  cropAdjust: 0,
 };
 
 export const usePrintStore = create<PrintStore>()(
   devtools(
-    (set, get) => ({
-      images: [],
-      settings: defaultSettings,
-      layout: null,
-      currentPage: 0,
-      selectedImageId: null,
+    persist(
+      (set, get) => ({
+        images: [],
+        settings: defaultSettings,
+        layout: null,
+        currentPage: 0,
+        selectedImageId: null,
+        customPaperSizes: [],
 
-      addImages: (files) => {
-        const newImages: PrintImage[] = files.map((file) => ({
-          id: crypto.randomUUID(),
-          file,
-          url: URL.createObjectURL(file),
-          offset: { x: 0, y: 0 },
-        }));
+        addImages: (files) => {
+          const existingImages = get().images;
 
-        set((state) => ({
-          images: [...state.images, ...newImages],
-        }));
+          // De-duplicate by file name + size
+          const newImages: PrintImage[] = files
+            .filter((file) => {
+              return !existingImages.some(
+                (existing) =>
+                  existing.file.name === file.name && existing.file.size === file.size
+              );
+            })
+            .map((file) => ({
+              id: crypto.randomUUID(),
+              file,
+              url: URL.createObjectURL(file),
+              offset: { x: 0, y: 0 },
+            }));
 
-        get().recalculateLayout();
-      },
+          if (newImages.length > 0) {
+            set((state) => ({
+              images: [...state.images, ...newImages],
+            }));
+            get().recalculateLayout();
+          }
+        },
 
-      removeImage: (id) => {
-        const image = get().images.find((img) => img.id === id);
-        if (image) {
-          URL.revokeObjectURL(image.url);
-        }
+        removeImage: (id) => {
+          const image = get().images.find((img) => img.id === id);
+          if (image) {
+            URL.revokeObjectURL(image.url);
+          }
 
-        set((state) => ({
-          images: state.images.filter((img) => img.id !== id),
-          selectedImageId: state.selectedImageId === id ? null : state.selectedImageId,
-        }));
+          set((state) => ({
+            images: state.images.filter((img) => img.id !== id),
+            selectedImageId: state.selectedImageId === id ? null : state.selectedImageId,
+          }));
 
-        get().recalculateLayout();
-      },
+          get().recalculateLayout();
+        },
 
-      clearImages: () => {
-        get().images.forEach((img) => URL.revokeObjectURL(img.url));
-        set({ images: [], currentPage: 0, selectedImageId: null });
-        get().recalculateLayout();
-      },
+        clearImages: () => {
+          get().images.forEach((img) => URL.revokeObjectURL(img.url));
+          set({ images: [], currentPage: 0, selectedImageId: null });
+          get().recalculateLayout();
+        },
 
-      setImageOffset: (id, offset) => {
-        set((state) => ({
-          images: state.images.map((img) =>
-            img.id === id ? { ...img, offset } : img
-          ),
-        }));
-      },
+        setImageOffset: (id, offset) => {
+          set((state) => ({
+            images: state.images.map((img) =>
+              img.id === id ? { ...img, offset } : img
+            ),
+          }));
+        },
 
-      selectImage: (id) => {
-        set({ selectedImageId: id });
-      },
+        resetImageOffset: (id) => {
+          set((state) => ({
+            images: state.images.map((img) =>
+              img.id === id ? { ...img, offset: { x: 0, y: 0 } } : img
+            ),
+          }));
+        },
 
-      updateSettings: (newSettings) => {
-        set((state) => ({
-          settings: { ...state.settings, ...newSettings },
-        }));
-        get().recalculateLayout();
-      },
+        selectImage: (id) => {
+          set({ selectedImageId: id });
+        },
 
-      setCurrentPage: (page) => {
-        const { layout } = get();
-        if (!layout) return;
-        const maxPage = layout.totalPages - 1;
-        set({ currentPage: Math.max(0, Math.min(page, maxPage)) });
-      },
+        updateSettings: (newSettings) => {
+          set((state) => ({
+            settings: { ...state.settings, ...newSettings },
+          }));
+          get().recalculateLayout();
+        },
 
-      nextPage: () => {
-        const { currentPage, layout } = get();
-        if (layout && currentPage < layout.totalPages - 1) {
-          set({ currentPage: currentPage + 1 });
-        }
-      },
+        setCurrentPage: (page) => {
+          const { layout } = get();
+          if (!layout) return;
+          const maxPage = layout.totalPages - 1;
+          set({ currentPage: Math.max(0, Math.min(page, maxPage)) });
+        },
 
-      prevPage: () => {
-        const { currentPage } = get();
-        if (currentPage > 0) {
-          set({ currentPage: currentPage - 1 });
-        }
-      },
+        nextPage: () => {
+          const { currentPage, layout } = get();
+          if (layout && currentPage < layout.totalPages - 1) {
+            set({ currentPage: currentPage + 1 });
+          }
+        },
 
-      recalculateLayout: () => {
-        const { images, settings } = get();
+        prevPage: () => {
+          const { currentPage } = get();
+          if (currentPage > 0) {
+            set({ currentPage: currentPage - 1 });
+          }
+        },
 
-        if (images.length === 0) {
-          set({ layout: null, currentPage: 0 });
-          return;
-        }
+        recalculateLayout: () => {
+          const { images, settings } = get();
 
-        const paper = settings.customPaper || PAPER_SIZES[settings.paperType];
+          if (images.length === 0) {
+            set({ layout: null, currentPage: 0 });
+            return;
+          }
 
-        const layout: LayoutResult = calculateLayout({
-          paper: { ...paper, name: settings.paperType },
-          frameType: settings.frameType,
-          imageMode: settings.imageMode,
-          columns: settings.columns,
-          gap: settings.gap,
-          padding: settings.padding,
-        });
+          const paper = settings.customPaper || PAPER_SIZES[settings.paperType];
 
-        layout.totalPages = calculateTotalPages(images.length, layout.perPage);
+          const layout: LayoutResult = calculateLayout({
+            paper: { ...paper, name: settings.paperType },
+            frameType: settings.frameType,
+            imageMode: settings.imageMode,
+            columns: settings.columns,
+            gap: settings.gap,
+            padding: settings.padding,
+          });
 
-        set((state) => ({
-          layout,
-          currentPage: Math.min(state.currentPage, Math.max(0, layout.totalPages - 1)),
-        }));
-      },
-    }),
+          layout.totalPages = calculateTotalPages(images.length, layout.perPage);
+
+          set((state) => ({
+            layout,
+            currentPage: Math.min(state.currentPage, Math.max(0, layout.totalPages - 1)),
+          }));
+        },
+
+        addCustomPaperSize: (name, width, height) => {
+          const newSize: CustomPaperSize = {
+            id: crypto.randomUUID(),
+            name,
+            width,
+            height,
+          };
+
+          set((state) => ({
+            customPaperSizes: [...state.customPaperSizes, newSize],
+            settings: {
+              ...state.settings,
+              paperType: 'custom',
+              customPaper: { width, height },
+            },
+          }));
+
+          get().recalculateLayout();
+        },
+
+        removeCustomPaperSize: (id) => {
+          set((state) => ({
+            customPaperSizes: state.customPaperSizes.filter((s) => s.id !== id),
+          }));
+        },
+
+        applyCustomPaperSize: (id) => {
+          const size = get().customPaperSizes.find((s) => s.id === id);
+          if (size) {
+            set((state) => ({
+              settings: {
+                ...state.settings,
+                paperType: 'custom',
+                customPaper: { width: size.width, height: size.height },
+              },
+            }));
+            get().recalculateLayout();
+          }
+        },
+      }),
+      {
+        name: 'print-storage',
+        partialize: (state) => ({
+          settings: state.settings,
+          customPaperSizes: state.customPaperSizes,
+        }),
+      }
+    ),
     { name: 'print-store' }
   )
 );

@@ -1,5 +1,7 @@
 // ==================== Common Types ====================
 
+export type WizardStep = 1 | 2 | 3 | 4;
+
 export interface Size {
   width: number;
   height: number;
@@ -61,14 +63,20 @@ export interface ProcessedImage {
   processedBlob?: Blob;
   status: 'pending' | 'processing' | 'done' | 'error';
   error?: string;
+  customName?: string; // 单张命名
 }
 
 export interface CropperSettings {
   enablePerspective: boolean;
+  cropBlackBorder: boolean;
   threshold: number;
-  namingMode: 'numeric' | 'prefix' | 'original';
-  prefix: string;
-  startNumber: number;
+  // 命名选项（可叠加）
+  useGlobalPrefix: boolean;   // 是否使用全局前缀
+  globalPrefix: string;       // 全局前缀内容
+  useDatePrefix: boolean;     // 是否使用日期前缀
+  useNumeric: boolean;        // 是否加数字序号
+  padding: number;            // 数字位数 2/3/4
+  startNumber: number;        // 起始数字
 }
 
 // ==================== Print Settings ====================
@@ -90,6 +98,12 @@ export interface PrintSettings {
   gap: number;
   padding: number;
   showCutMarks: boolean;
+  cropAdjust: number; // -5 to +5, for Inner mode
+}
+
+export interface CustomPaperSize extends Size {
+  id: string;
+  name: string;
 }
 
 export interface ExportSettings {

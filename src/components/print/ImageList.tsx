@@ -5,6 +5,7 @@ interface ImageListProps {
   selectedImageId: string | null;
   onSelect: (id: string) => void;
   onRemove: (id: string) => void;
+  onDownload?: (id: string) => void;
 }
 
 export function ImageList({
@@ -12,6 +13,7 @@ export function ImageList({
   selectedImageId,
   onSelect,
   onRemove,
+  onDownload,
 }: ImageListProps) {
   if (images.length === 0) {
     return null;
@@ -56,18 +58,38 @@ export function ImageList({
             </p>
           </div>
 
-          {/* Remove button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove(image.id);
-            }}
-            className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          {/* Action buttons */}
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Download button */}
+            {onDownload && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDownload(image.id);
+                }}
+                className="p-1.5 text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-all"
+                title="Download"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+            )}
+
+            {/* Remove button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(image.id);
+              }}
+              className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+              title="Remove"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       ))}
     </div>

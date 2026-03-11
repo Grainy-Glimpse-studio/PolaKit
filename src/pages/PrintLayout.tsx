@@ -8,6 +8,7 @@ import {
   LayoutSettings,
   PageNavigation,
   ExportOptions,
+  ImagePositionPanel,
 } from '@/components/print';
 import { Button, PageLayout, Panel } from '@/components/ui';
 
@@ -22,16 +23,23 @@ export function PrintLayout({ frameType = 'polaroid' }: PrintLayoutProps) {
     layout,
     currentPage,
     selectedImageId,
+    customPaperSizes,
     addImages,
     removeImage,
     clearImages,
     setImageOffset,
+    resetImageOffset,
     selectImage,
     updateSettings,
     setCurrentPage,
     nextPage,
     prevPage,
     exportPdf,
+    exportPng,
+    downloadSingle,
+    addCustomPaperSize,
+    removeCustomPaperSize,
+    applyCustomPaperSize,
   } = usePrintLayout();
 
   useEffect(() => {
@@ -39,6 +47,8 @@ export function PrintLayout({ frameType = 'polaroid' }: PrintLayoutProps) {
       updateSettings({ frameType });
     }
   }, [frameType, settings.frameType, updateSettings]);
+
+  const selectedImage = images.find((img) => img.id === selectedImageId);
 
   const headerActions = images.length > 0 ? (
     <Button variant="ghost" size="sm" onClick={clearImages}>
@@ -66,10 +76,22 @@ export function PrintLayout({ frameType = 'polaroid' }: PrintLayoutProps) {
                   selectedImageId={selectedImageId}
                   onSelect={selectImage}
                   onRemove={removeImage}
+                  onDownload={downloadSingle}
                 />
               )}
             </div>
           </Panel>
+
+          {/* Image Position - only show when image is selected */}
+          {selectedImage && (
+            <Panel title="Image Position">
+              <ImagePositionPanel
+                offset={selectedImage.offset}
+                onOffsetChange={(offset) => setImageOffset(selectedImageId!, offset)}
+                onReset={() => resetImageOffset(selectedImageId!)}
+              />
+            </Panel>
+          )}
 
           {images.length === 0 && (
             <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-4 border border-cyan-100">
@@ -124,13 +146,21 @@ export function PrintLayout({ frameType = 'polaroid' }: PrintLayoutProps) {
         {/* Right Sidebar - Settings */}
         <div className="lg:col-span-3 space-y-4">
           <Panel title="Layout">
-            <LayoutSettings settings={settings} onUpdate={updateSettings} />
+            <LayoutSettings
+              settings={settings}
+              onUpdate={updateSettings}
+              customPaperSizes={customPaperSizes}
+              onAddCustomPaper={addCustomPaperSize}
+              onRemoveCustomPaper={removeCustomPaperSize}
+              onApplyCustomPaper={applyCustomPaperSize}
+            />
           </Panel>
 
           {layout && images.length > 0 && (
             <Panel title="Export">
               <ExportOptions
                 onExportPdf={exportPdf}
+                onExportPng={exportPng}
                 disabled={images.length === 0}
               />
             </Panel>
