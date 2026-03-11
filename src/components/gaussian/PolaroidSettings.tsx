@@ -9,8 +9,6 @@ interface PolaroidSettingsProps {
 export function PolaroidSettings({ settings, onUpdate }: PolaroidSettingsProps) {
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-gray-900">Polaroid</h3>
-
       <Slider
         label="Size"
         value={settings.polaroidSize}

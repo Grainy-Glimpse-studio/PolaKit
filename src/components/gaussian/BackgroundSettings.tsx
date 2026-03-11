@@ -27,8 +27,6 @@ const SOLID_PRESETS: { color: string; label: string }[] = [
 export function BackgroundSettings({ settings, onUpdate }: BackgroundSettingsProps) {
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-gray-900">Background</h3>
-
       <div className="flex gap-2">
         {BG_TYPES.map((type) => (
           <button

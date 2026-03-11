@@ -141,6 +141,20 @@ export function GaussianBg() {
               }
             />
           </Panel>
+
+          <Panel title="Export">
+            <ExportSettings
+              settings={settings}
+              onUpdate={updateSettings}
+              namingMode={namingMode}
+              onNamingModeChange={setNamingMode}
+              exportFormat={exportFormat}
+              onExportFormatChange={setExportFormat}
+              videoDuration={videoDuration}
+              onVideoDurationChange={setVideoDuration}
+              hasVideo={hasVideo}
+            />
+          </Panel>
         </div>
 
         {/* Center - Preview */}
@@ -207,20 +221,6 @@ export function GaussianBg() {
             <PolaroidSettings
               settings={settings}
               onUpdate={updateSettings}
-            />
-          </Panel>
-
-          <Panel title="Export">
-            <ExportSettings
-              settings={settings}
-              onUpdate={updateSettings}
-              namingMode={namingMode}
-              onNamingModeChange={setNamingMode}
-              exportFormat={exportFormat}
-              onExportFormatChange={setExportFormat}
-              videoDuration={videoDuration}
-              onVideoDurationChange={setVideoDuration}
-              hasVideo={hasVideo}
             />
           </Panel>
 
