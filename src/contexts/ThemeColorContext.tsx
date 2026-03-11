@@ -1,8 +1,8 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
-// Polaroid brand theme colors
+// Theme colors
 export const THEME_COLORS = {
-  red: '#e41b13',     // Polaroid Crimson (GaussianBg)
+  orange: '#f97316',  // Orange (GaussianBg)
   yellow: '#fdc800',  // Polaroid Supernova (Cropper)
   cyan: '#00a3e2',    // Polaroid Cerulean (PrintLayout)
 } as const;

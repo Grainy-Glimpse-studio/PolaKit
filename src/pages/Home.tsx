@@ -139,10 +139,14 @@ const tools = [
 export type IntroPhase = 'intro' | 'exploding' | 'main';
 
 export function Home() {
-  const [introPhase, setIntroPhase] = useState<IntroPhase>('intro');
+  // Check if user has already seen intro this session
+  const hasSeenIntro = sessionStorage.getItem('polakit-intro-seen') === 'true';
+  const [introPhase, setIntroPhase] = useState<IntroPhase>(hasSeenIntro ? 'main' : 'intro');
 
   const handleExplosion = useCallback(() => {
     setIntroPhase('exploding');
+    // Mark intro as seen
+    sessionStorage.setItem('polakit-intro-seen', 'true');
     // Transition to main after animation
     setTimeout(() => {
       setIntroPhase('main');

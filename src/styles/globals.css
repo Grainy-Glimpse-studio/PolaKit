@@ -539,11 +539,34 @@ body {
   transform: rotate(45deg);
 }
 
+/* Pixel slider thumb - solid gray default */
+.pixel-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 20px;
+  background-color: #c0c0c0;
+  border: 2px solid #2a2a2a;
+  border-radius: 0;
+  cursor: grab;
+}
+
+.pixel-slider::-moz-range-thumb {
+  width: 16px;
+  height: 20px;
+  background-color: #c0c0c0;
+  border: 2px solid #2a2a2a;
+  border-radius: 0;
+  cursor: grab;
+}
+
 /* Pixel slider - theme color on drag */
 .pixel-slider:active::-webkit-slider-thumb {
   background-color: var(--theme-color, #c0c0c0) !important;
+  cursor: grabbing;
 }
 
 .pixel-slider:active::-moz-range-thumb {
   background-color: var(--theme-color, #c0c0c0) !important;
+  cursor: grabbing;
 }

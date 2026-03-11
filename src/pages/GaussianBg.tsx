@@ -122,7 +122,7 @@ export function GaussianBg() {
         title="Blur BG"
         subtitle="Create stunning blurred backgrounds"
         headerActions={headerActions}
-        themeColor="#e41b13"
+        themeColor="#f97316"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar */}
@@ -257,13 +257,13 @@ export function GaussianBg() {
             {/* Quick info - pixel style */}
             <div className="pixel-panel p-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 border-2 border-pixel-border bg-red-100 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-pixel-red" fill="currentColor" viewBox="0 0 20 20">
+                <div className="w-8 h-8 border-2 border-pixel-border bg-orange-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div>
-                  <p className="pixel-body font-bold text-pixel-red">Pro tip</p>
+                  <p className="pixel-body font-bold text-orange-500">Pro tip</p>
                   <p className="pixel-body text-gray-600 mt-0.5">
                     Use Story preset for Instagram Stories, or save your own custom presets.
                   </p>

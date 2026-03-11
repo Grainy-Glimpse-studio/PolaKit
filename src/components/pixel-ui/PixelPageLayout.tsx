@@ -17,14 +17,14 @@ export function PixelPageLayout({
   subtitle,
   children,
   headerActions,
-  themeColor = THEME_COLORS.red,
+  themeColor = THEME_COLORS.orange,
   accentColor,
 }: PixelPageLayoutProps) {
   const navigate = useNavigate();
 
   // Support legacy accentColor prop by mapping to new theme colors
   const resolvedThemeColor = accentColor
-    ? (accentColor === 'rose' ? THEME_COLORS.yellow : accentColor === 'cyan' ? THEME_COLORS.cyan : THEME_COLORS.red)
+    ? (accentColor === 'rose' ? THEME_COLORS.yellow : accentColor === 'cyan' ? THEME_COLORS.cyan : THEME_COLORS.orange)
     : themeColor;
 
   return (

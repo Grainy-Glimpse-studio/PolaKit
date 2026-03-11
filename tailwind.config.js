@@ -27,7 +27,7 @@ export default {
           shadow: '#1a1a1a',     // 3D shadow
           gray: '#c0c0c0',       // button default gray
           // Polaroid brand colors
-          red: '#e41b13',        // Polaroid Crimson (GaussianBg)
+          orange: '#f97316',     // Orange (GaussianBg)
           yellow: '#fdc800',     // Polaroid Supernova (Cropper)
           cyan: '#00a3e2',       // Polaroid Cerulean (PrintLayout)
           rose: '#f43f5e',       // rose-500 (legacy)

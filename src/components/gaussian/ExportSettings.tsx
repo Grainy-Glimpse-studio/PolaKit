@@ -159,7 +159,7 @@ export function ExportSettings({
                 border-2 border-pixel-border
                 transition-all
                 ${namingMode === mode.value
-                  ? 'bg-red-50'
+                  ? 'bg-orange-50'
                   : 'bg-white hover:bg-gray-50'
                 }
               `}

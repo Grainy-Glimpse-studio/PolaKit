@@ -97,7 +97,7 @@ export function PresetManager({
                   border-2 border-pixel-border
                   transition-all
                   ${activePreset === key
-                    ? 'bg-red-50'
+                    ? 'bg-orange-50'
                     : 'bg-white hover:bg-gray-50'
                   }
                 `}
