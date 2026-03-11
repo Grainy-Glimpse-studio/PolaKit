@@ -89,9 +89,12 @@ export interface PrintImage {
   whiteBorder?: Rect;
 }
 
+export type PaperOrientation = 'portrait' | 'landscape';
+
 export interface PrintSettings {
   paperType: PaperType;
   customPaper?: Size;
+  orientation: PaperOrientation;
   frameType: FrameType;
   imageMode: ImageMode;
   columns: number;

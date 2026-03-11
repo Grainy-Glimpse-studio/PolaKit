@@ -28,6 +28,7 @@ type PrintStore = PrintStoreState & PrintActions;
 
 const defaultSettings: PrintSettings = {
   paperType: 'a4',
+  orientation: 'portrait',
   frameType: 'polaroid',
   imageMode: 'frame',
   columns: 3,
@@ -150,10 +151,15 @@ export const usePrintStore = create<PrintStore>()(
             return;
           }
 
-          const paper = settings.customPaper || PAPER_SIZES[settings.paperType];
+          const basePaper = settings.customPaper || PAPER_SIZES[settings.paperType];
+
+          // Apply orientation - swap width/height for landscape
+          const paper = settings.orientation === 'landscape'
+            ? { width: basePaper.height, height: basePaper.width, name: settings.paperType }
+            : { ...basePaper, name: settings.paperType };
 
           const layout: LayoutResult = calculateLayout({
-            paper: { ...paper, name: settings.paperType },
+            paper,
             frameType: settings.frameType,
             imageMode: settings.imageMode,
             columns: settings.columns,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { PrintSettings, FrameType, PaperType, ImageMode, CustomPaperSize } from '@/types';
+import type { PrintSettings, FrameType, PaperType, ImageMode, CustomPaperSize, PaperOrientation } from '@/types';
 import { Select, Slider, Button } from '@/components/ui';
 
 interface LayoutSettingsProps {
@@ -150,6 +150,41 @@ export function LayoutSettings({
           </div>
         </div>
       )}
+
+      {/* Paper Orientation */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Orientation
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => onUpdate({ orientation: 'portrait' })}
+            className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center justify-center gap-2 ${
+              settings.orientation === 'portrait'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+            }`}
+          >
+            <svg className="w-4 h-5" viewBox="0 0 16 20" fill="currentColor">
+              <rect x="1" y="0" width="14" height="20" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+            </svg>
+            Portrait
+          </button>
+          <button
+            onClick={() => onUpdate({ orientation: 'landscape' })}
+            className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center justify-center gap-2 ${
+              settings.orientation === 'landscape'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+            }`}
+          >
+            <svg className="w-5 h-4" viewBox="0 0 20 16" fill="currentColor">
+              <rect x="0" y="1" width="20" height="14" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+            </svg>
+            Landscape
+          </button>
+        </div>
+      </div>
 
       <Select
         label="Frame Type"

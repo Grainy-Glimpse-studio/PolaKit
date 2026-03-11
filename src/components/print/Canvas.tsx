@@ -27,7 +27,11 @@ export function PrintCanvas({
   const [loadedImages, setLoadedImages] = useState<Map<string, HTMLImageElement>>(new Map());
   const imageRects = useRef<Map<string, { x: number; y: number; width: number; height: number }>>(new Map());
 
-  const paper = settings.customPaper || PAPER_SIZES[settings.paperType];
+  const basePaper = settings.customPaper || PAPER_SIZES[settings.paperType];
+  // Apply orientation - swap width/height for landscape
+  const paper = settings.orientation === 'landscape'
+    ? { width: basePaper.height, height: basePaper.width }
+    : basePaper;
   const scale = 2;
   const canvasWidth = paper.width * scale;
   const canvasHeight = paper.height * scale;

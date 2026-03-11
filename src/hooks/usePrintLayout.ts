@@ -39,7 +39,11 @@ export function usePrintLayout() {
     async (dpi: 150 | 300 | 600 = 300) => {
       if (!store.layout || store.images.length === 0) return;
 
-      const paper = store.settings.customPaper || PAPER_SIZES[store.settings.paperType];
+      const basePaper = store.settings.customPaper || PAPER_SIZES[store.settings.paperType];
+      // Apply orientation
+      const paper = store.settings.orientation === 'landscape'
+        ? { width: basePaper.height, height: basePaper.width }
+        : basePaper;
       const scale = dpi / 25.4; // mm to pixels at given DPI
       const canvasWidth = Math.round(paper.width * scale);
       const canvasHeight = Math.round(paper.height * scale);
