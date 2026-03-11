@@ -12,6 +12,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['opencv.js'],
   },
+  worker: {
+    format: 'iife',
+  },
   build: {
     rollupOptions: {
       output: {

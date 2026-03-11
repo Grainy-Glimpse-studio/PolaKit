@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { CropperState, ProcessedImage, CropperSettings } from '@/types';
-import { processPolaroidImage } from '@/lib/cropper/perspective';
+import { opencvWorkerService } from '@/lib/cropper/opencv-worker-service';
 
 interface CropperActions {
   addImages: (files: File[]) => void;
   removeImage: (id: string) => void;
   clearImages: () => void;
   updateSettings: (settings: Partial<CropperSettings>) => void;
+  updateImageName: (id: string, customName: string) => void;
   processAllImages: () => Promise<void>;
   processImage: (id: string) => Promise<void>;
 }
@@ -16,9 +17,14 @@ type CropperStore = CropperState & CropperActions;
 
 const defaultSettings: CropperSettings = {
   enablePerspective: true,
+  cropBlackBorder: true,
   threshold: 180,
-  namingMode: 'numeric',
-  prefix: 'polaroid',
+  // 命名选项
+  useGlobalPrefix: false,
+  globalPrefix: 'Polaroid_',
+  useDatePrefix: false,
+  useNumeric: true,
+  padding: 3,
   startNumber: 1,
 };
 
@@ -73,6 +79,14 @@ export const useCropperStore = create<CropperStore>()(
         }));
       },
 
+      updateImageName: (id, customName) => {
+        set((state) => ({
+          images: state.images.map((img) =>
+            img.id === id ? { ...img, customName } : img
+          ),
+        }));
+      },
+
       processAllImages: async () => {
         const { images, settings } = get();
         const pendingImages = images.filter((img) => img.status === 'pending');
@@ -90,7 +104,7 @@ export const useCropperStore = create<CropperStore>()(
             ),
           }));
 
-          const result = await processPolaroidImage(img.file, {
+          const result = await opencvWorkerService.processImage(img.file, {
             threshold: settings.threshold,
             enablePerspective: settings.enablePerspective,
           });
@@ -128,7 +142,7 @@ export const useCropperStore = create<CropperStore>()(
           ),
         }));
 
-        const result = await processPolaroidImage(image.file, {
+        const result = await opencvWorkerService.processImage(image.file, {
           threshold: settings.threshold,
           enablePerspective: settings.enablePerspective,
         });
