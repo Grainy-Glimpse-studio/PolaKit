@@ -10,11 +10,15 @@ interface WorkerRequest {
 }
 
 interface WorkerResponse {
-  type: 'ready' | 'result' | 'error' | 'progress';
+  type: 'ready' | 'result' | 'error' | 'progress' | 'log';
   id?: string;
   imageData?: ImageData;
+  width?: number;
+  height?: number;
+  data?: Uint8ClampedArray;
   error?: string;
   progress?: number;
+  message?: string;
 }
 
 export interface ProcessOptions {
@@ -51,35 +55,56 @@ class OpenCVWorkerService {
     if (this.worker) return;
 
     this.loading = true;
+    console.log('[OpenCV] Initializing worker...');
 
-    // Use classic worker (not module) to support importScripts for OpenCV.js
-    this.worker = new Worker(
-      new URL('../../workers/opencv.worker.ts', import.meta.url)
-    );
+    try {
+      // Use worker from public directory (classic worker with importScripts)
+      this.worker = new Worker('/opencv.worker.js');
+      console.log('[OpenCV] Worker created successfully');
+    } catch (e) {
+      console.error('[OpenCV] Failed to create worker:', e);
+      this.error = 'Failed to create worker';
+      this.loading = false;
+      return;
+    }
 
     this.worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
-      const { type, id, imageData, error: workerError } = e.data;
+      const { type, id, error: workerError, message } = e.data;
+
+      // Handle log messages from worker
+      if (type === 'log') {
+        console.log('[OpenCV Worker]', message);
+        return;
+      }
+
+      console.log('[OpenCV] Worker message:', type, id ? `(id: ${id})` : '');
 
       if (type === 'ready') {
+        console.log('[OpenCV] Worker ready!');
         this.ready = true;
         this.loading = false;
         this.error = null;
         this.readyCallbacks.forEach(cb => cb());
         this.readyCallbacks = [];
       } else if (type === 'error' && !id) {
+        console.error('[OpenCV] Worker init error:', workerError);
         this.error = workerError || 'Unknown error';
         this.loading = false;
         this.errorCallbacks.forEach(cb => cb(this.error!));
         this.errorCallbacks = [];
       } else if (type === 'result' && id) {
         const pending = this.pendingRequests.get(id);
-        if (pending && imageData) {
-          this.imageDataToBlob(imageData).then((blob) => {
+        const { imageData: resultImageData } = e.data as { imageData: ImageData };
+        if (pending && resultImageData) {
+          console.log('[OpenCV] Result received:', resultImageData.width, 'x', resultImageData.height);
+          this.imageDataToBlob(resultImageData).then((blob) => {
+            console.log('[OpenCV] Blob created, size:', blob.size);
             pending.resolve({ success: true, blob });
             this.pendingRequests.delete(id);
           });
         }
       } else if (type === 'error' && id) {
+        console.error('[OpenCV] Processing error:', workerError);
         const pending = this.pendingRequests.get(id);
         if (pending) {
           pending.resolve({ success: false, error: workerError });
@@ -89,6 +114,7 @@ class OpenCVWorkerService {
     };
 
     this.worker.onerror = (e) => {
+      console.error('[OpenCV] Worker error:', e);
       this.error = `Worker error: ${e.message}`;
       this.loading = false;
       this.errorCallbacks.forEach(cb => cb(this.error!));
@@ -133,30 +159,45 @@ class OpenCVWorkerService {
   }
 
   async processImage(file: File, options: ProcessOptions = {}): Promise<ProcessResult> {
+    console.log('[OpenCV] processImage called, ready:', this.ready);
     if (!this.worker || !this.ready) {
+      console.error('[OpenCV] Not ready!');
       return { success: false, error: 'OpenCV not ready' };
     }
 
     try {
+      console.log('[OpenCV] Converting file to ImageData...');
       const imageData = await this.fileToImageData(file);
+      console.log('[OpenCV] ImageData ready:', imageData.width, 'x', imageData.height);
       const id = crypto.randomUUID();
 
       return new Promise((resolve, reject) => {
         this.pendingRequests.set(id, { resolve, reject });
 
-        const request: WorkerRequest = {
+        const request = {
           type: 'process',
           id,
-          imageData,
+          imageData: imageData,
           options: {
             threshold: options.threshold ?? 180,
             enablePerspective: options.enablePerspective ?? true,
           },
         };
 
-        this.worker!.postMessage(request);
+        console.log('[OpenCV] Sending to worker, id:', id);
+
+        // Test: send a simple ping first
+        this.worker!.postMessage({ type: 'ping' });
+
+        try {
+          this.worker!.postMessage(request);
+          console.log('[OpenCV] Message sent, imageData size:', imageData.data.length);
+        } catch (e) {
+          console.error('[OpenCV] postMessage failed:', e);
+        }
       });
     } catch (err) {
+      console.error('[OpenCV] Process error:', err);
       return {
         success: false,
         error: err instanceof Error ? err.message : 'Failed to process image'
