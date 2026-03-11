@@ -1,5 +1,5 @@
 import type { CropperSettings, ProcessedImage } from '@/types';
-import { Toggle } from '@/components/ui';
+import { TemplateToggle } from '@/components/template';
 import { FilenamePreview } from '../FilenamePreview';
 import { WizardNavigation } from './WizardNavigation';
 
@@ -37,11 +37,12 @@ export function StepRename({
           <div className="space-y-4">
             {/* 全局前缀 */}
             <div className="p-4 bg-gray-50 rounded-xl space-y-3">
-              <Toggle
+              <TemplateToggle
                 checked={settings.useGlobalPrefix}
                 onChange={(checked) => onUpdateSettings({ useGlobalPrefix: checked })}
                 label="Global Prefix"
                 description="Add a custom prefix to all files"
+                settingPath="cropper.useGlobalPrefix"
               />
               {settings.useGlobalPrefix && (
                 <input
@@ -56,21 +57,23 @@ export function StepRename({
 
             {/* 日期前缀 */}
             <div className="p-4 bg-gray-50 rounded-xl">
-              <Toggle
+              <TemplateToggle
                 checked={settings.useDatePrefix}
                 onChange={(checked) => onUpdateSettings({ useDatePrefix: checked })}
                 label="Date Prefix"
                 description="Add processing date/time (e.g., 2026-03-10_17-30_)"
+                settingPath="cropper.useDatePrefix"
               />
             </div>
 
             {/* 数字序号 */}
             <div className="p-4 bg-gray-50 rounded-xl space-y-3">
-              <Toggle
+              <TemplateToggle
                 checked={settings.useNumeric}
                 onChange={(checked) => onUpdateSettings({ useNumeric: checked })}
                 label="Numeric Sequence"
                 description="Add sequential numbers (001, 002...)"
+                settingPath="cropper.useNumeric"
               />
               {settings.useNumeric && (
                 <div className="grid grid-cols-2 gap-3">

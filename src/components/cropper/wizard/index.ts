@@ -4,3 +4,4 @@ export * from './StepUpload';
 export * from './StepSettings';
 export * from './StepRename';
 export * from './StepProcess';
+export * from './CropperTemplateBar';

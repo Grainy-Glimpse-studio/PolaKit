@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { LiquidBackground, PolaroidScene3D } from '../components/home';
+import { TemplateColorBar } from '../components/template';
 
 // Fake orb overlay - identical to background fluid orb, but rendered on top
 function FakeOrbOverlay({ phase }: { phase: IntroPhase }) {
@@ -195,6 +196,18 @@ export function Home() {
               100% local processing &mdash; your photos never leave your device
             </span>
           </div>
+        </div>
+
+        {/* Template Quick Process Bar - fade in during explosion */}
+        <div
+          className="mt-6"
+          style={{
+            opacity: introPhase === 'intro' ? 0 : 1,
+            transition: 'opacity 1.3s ease-out',
+            transitionDelay: introPhase === 'exploding' ? '0.9s' : '0s',
+          }}
+        >
+          <TemplateColorBar />
         </div>
 
         {/* Footer - fade in during explosion */}

@@ -9,10 +9,13 @@ import {
   StepSettings,
   StepRename,
   StepProcess,
+  CropperTemplateBar,
+  CropperTemplateProvider,
 } from '@/components/cropper/wizard';
 
 export function Cropper() {
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
+  const [showTemplateDetails, setShowTemplateDetails] = useState(false);
 
   const {
     cvReady,
@@ -65,60 +68,67 @@ export function Cropper() {
       }
     >
       {/* Wizard Stepper */}
-      <div className="mb-8">
+      <div className="mb-8 flex items-center justify-center gap-4">
         <WizardStepper
           currentStep={currentStep}
           onStepClick={goToStep}
           canNavigate={canNavigateToStep}
         />
+        <CropperTemplateBar
+          settings={settings}
+          showDetails={showTemplateDetails}
+          onToggleDetails={() => setShowTemplateDetails(!showTemplateDetails)}
+        />
       </div>
 
       {/* Step Content */}
-      <div className="max-w-4xl mx-auto">
-        {currentStep === 1 && (
-          <StepUpload
-            images={images}
-            onFilesSelect={addImages}
-            onRemoveImage={removeImage}
-            onNext={() => setCurrentStep(2)}
-          />
-        )}
+      <CropperTemplateProvider showDetails={showTemplateDetails}>
+        <div className="max-w-4xl mx-auto">
+          {currentStep === 1 && (
+            <StepUpload
+              images={images}
+              onFilesSelect={addImages}
+              onRemoveImage={removeImage}
+              onNext={() => setCurrentStep(2)}
+            />
+          )}
 
-        {currentStep === 2 && (
-          <StepSettings
-            settings={settings}
-            onUpdateSettings={updateSettings}
-            onBack={() => setCurrentStep(1)}
-            onNext={() => setCurrentStep(3)}
-          />
-        )}
+          {currentStep === 2 && (
+            <StepSettings
+              settings={settings}
+              onUpdateSettings={updateSettings}
+              onBack={() => setCurrentStep(1)}
+              onNext={() => setCurrentStep(3)}
+            />
+          )}
 
-        {currentStep === 3 && (
-          <StepRename
-            images={images}
-            settings={settings}
-            onUpdateSettings={updateSettings}
-            onUpdateImageName={updateImageName}
-            onBack={() => setCurrentStep(2)}
-            onNext={() => setCurrentStep(4)}
-          />
-        )}
+          {currentStep === 3 && (
+            <StepRename
+              images={images}
+              settings={settings}
+              onUpdateSettings={updateSettings}
+              onUpdateImageName={updateImageName}
+              onBack={() => setCurrentStep(2)}
+              onNext={() => setCurrentStep(4)}
+            />
+          )}
 
-        {currentStep === 4 && (
-          <StepProcess
-            images={images}
-            isProcessing={isProcessing}
-            progress={progress}
-            cvReady={cvReady}
-            exporting={exporting}
-            onBack={() => setCurrentStep(3)}
-            onProcess={processAllImages}
-            onDownloadSingle={downloadSingle}
-            onDownloadAll={exportAsZip}
-            onRemoveImage={removeImage}
-          />
-        )}
-      </div>
+          {currentStep === 4 && (
+            <StepProcess
+              images={images}
+              isProcessing={isProcessing}
+              progress={progress}
+              cvReady={cvReady}
+              exporting={exporting}
+              onBack={() => setCurrentStep(3)}
+              onProcess={processAllImages}
+              onDownloadSingle={downloadSingle}
+              onDownloadAll={exportAsZip}
+              onRemoveImage={removeImage}
+            />
+          )}
+        </div>
+      </CropperTemplateProvider>
     </PageLayout>
   );
 }

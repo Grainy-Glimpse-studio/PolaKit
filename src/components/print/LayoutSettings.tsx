@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import type { PrintSettings, FrameType, PaperType, ImageMode, CustomPaperSize, PaperOrientation } from '@/types';
-import { Select, Slider, Button } from '@/components/ui';
+import { Button } from '@/components/ui';
+import {
+  TemplateSelect,
+  TemplateSlider,
+  TemplateCheckbox,
+  TemplateButtonGroup,
+} from '@/components/template';
 
 interface LayoutSettingsProps {
   settings: PrintSettings;
@@ -53,7 +59,7 @@ export function LayoutSettings({
 
   return (
     <div className="space-y-4">
-      <Select
+      <TemplateSelect
         label="Paper Size"
         value={settings.paperType}
         onChange={handlePaperTypeChange}
@@ -65,6 +71,7 @@ export function LayoutSettings({
           { value: '6x4', label: '6 × 4"' },
           { value: 'custom', label: 'Custom...' },
         ]}
+        settingPath="print.paperType"
       />
 
       {/* Custom paper size input */}
@@ -152,41 +159,34 @@ export function LayoutSettings({
       )}
 
       {/* Paper Orientation */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Orientation
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => onUpdate({ orientation: 'portrait' })}
-            className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center justify-center gap-2 ${
-              settings.orientation === 'portrait'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            <svg className="w-4 h-5" viewBox="0 0 16 20" fill="currentColor">
-              <rect x="1" y="0" width="14" height="20" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none" />
-            </svg>
-            Portrait
-          </button>
-          <button
-            onClick={() => onUpdate({ orientation: 'landscape' })}
-            className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center justify-center gap-2 ${
-              settings.orientation === 'landscape'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            <svg className="w-5 h-4" viewBox="0 0 20 16" fill="currentColor">
-              <rect x="0" y="1" width="20" height="14" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none" />
-            </svg>
-            Landscape
-          </button>
-        </div>
-      </div>
+      <TemplateButtonGroup
+        label="Orientation"
+        value={settings.orientation}
+        onChange={(value) => onUpdate({ orientation: value as PaperOrientation })}
+        options={[
+          {
+            value: 'portrait',
+            label: 'Portrait',
+            icon: (
+              <svg className="w-4 h-5" viewBox="0 0 16 20" fill="currentColor">
+                <rect x="1" y="0" width="14" height="20" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
+            ),
+          },
+          {
+            value: 'landscape',
+            label: 'Landscape',
+            icon: (
+              <svg className="w-5 h-4" viewBox="0 0 20 16" fill="currentColor">
+                <rect x="0" y="1" width="20" height="14" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
+            ),
+          },
+        ]}
+        settingPath="print.orientation"
+      />
 
-      <Select
+      <TemplateSelect
         label="Frame Type"
         value={settings.frameType}
         onChange={(value) => onUpdate({ frameType: value as FrameType })}
@@ -195,9 +195,10 @@ export function LayoutSettings({
           { value: 'instax-mini', label: 'Instax Mini (54 × 86 mm)' },
           { value: 'super8', label: 'Super 8 (60 × 45 mm)' },
         ]}
+        settingPath="print.frameType"
       />
 
-      <Select
+      <TemplateSelect
         label="Image Mode"
         value={settings.imageMode}
         onChange={(value) => onUpdate({ imageMode: value as ImageMode })}
@@ -205,59 +206,59 @@ export function LayoutSettings({
           { value: 'frame', label: 'Keep Frame (full scan)' },
           { value: 'inner', label: 'Inner Photo Only (auto-crop)' },
         ]}
+        settingPath="print.imageMode"
       />
 
       {/* Crop Adjust - only show for Inner mode */}
       {settings.imageMode === 'inner' && (
-        <Slider
+        <TemplateSlider
           label="Crop Adjust"
           value={settings.cropAdjust}
           min={-5}
           max={5}
           step={1}
           onChange={(value) => onUpdate({ cropAdjust: value })}
+          settingPath="print.cropAdjust"
         />
       )}
 
-      <Slider
+      <TemplateSlider
         label="Columns"
         value={settings.columns}
         min={1}
         max={6}
         step={1}
         onChange={(value) => onUpdate({ columns: value })}
+        settingPath="print.columns"
       />
 
-      <Slider
+      <TemplateSlider
         label="Gap (mm)"
         value={settings.gap}
         min={0}
         max={10}
         step={0.5}
         onChange={(value) => onUpdate({ gap: value })}
+        settingPath="print.gap"
       />
 
-      <Slider
+      <TemplateSlider
         label="Padding (mm)"
         value={settings.padding}
         min={0}
         max={20}
         step={1}
         onChange={(value) => onUpdate({ padding: value })}
+        settingPath="print.padding"
       />
 
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="showCutMarks"
-          checked={settings.showCutMarks}
-          onChange={(e) => onUpdate({ showCutMarks: e.target.checked })}
-          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-        />
-        <label htmlFor="showCutMarks" className="text-sm text-gray-700">
-          Show cut marks
-        </label>
-      </div>
+      <TemplateCheckbox
+        id="showCutMarks"
+        checked={settings.showCutMarks}
+        onChange={(checked) => onUpdate({ showCutMarks: checked })}
+        label="Show cut marks"
+        settingPath="print.showCutMarks"
+      />
     </div>
   );
 }

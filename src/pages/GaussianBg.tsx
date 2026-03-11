@@ -11,6 +11,7 @@ import {
   ExportSettings,
 } from '@/components/gaussian';
 import { Button, PageLayout, Panel } from '@/components/ui';
+import { TemplatePanel } from '@/components/template';
 
 export function GaussianBg() {
   const {
@@ -210,19 +211,42 @@ export function GaussianBg() {
             </div>
           )}
 
-          <Panel title="Background">
-            <BackgroundSettings
-              settings={settings}
-              onUpdate={updateSettings}
-            />
-          </Panel>
+          {/* Template Panel wraps all settings */}
+          <TemplatePanel
+            moduleName="Blur"
+            settings={[
+              { path: 'gaussian.ratio', value: settings.ratio },
+              { path: 'gaussian.polaroidSize', value: settings.polaroidSize },
+              { path: 'gaussian.polaroidOffsetX', value: settings.polaroidOffsetX },
+              { path: 'gaussian.polaroidOffsetY', value: settings.polaroidOffsetY },
+              { path: 'gaussian.bgType', value: settings.bgType },
+              { path: 'gaussian.blurIntensity', value: settings.blurIntensity },
+              { path: 'gaussian.brightness', value: settings.brightness },
+              { path: 'gaussian.bgScale', value: settings.bgScale },
+              { path: 'gaussian.bgOffsetX', value: settings.bgOffsetX },
+              { path: 'gaussian.bgOffsetY', value: settings.bgOffsetY },
+              { path: 'gaussian.bgColor', value: settings.bgColor },
+              { path: 'gaussian.shadow', value: settings.shadow },
+              { path: 'gaussian.shadowBlur', value: settings.shadowBlur },
+              { path: 'gaussian.shadowOpacity', value: settings.shadowOpacity },
+            ]}
+          >
+            <div className="space-y-4">
+              <Panel title="Background">
+                <BackgroundSettings
+                  settings={settings}
+                  onUpdate={updateSettings}
+                />
+              </Panel>
 
-          <Panel title="Polaroid">
-            <PolaroidSettings
-              settings={settings}
-              onUpdate={updateSettings}
-            />
-          </Panel>
+              <Panel title="Polaroid">
+                <PolaroidSettings
+                  settings={settings}
+                  onUpdate={updateSettings}
+                />
+              </Panel>
+            </div>
+          </TemplatePanel>
 
           {/* Quick info */}
           <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-4 border border-violet-100">

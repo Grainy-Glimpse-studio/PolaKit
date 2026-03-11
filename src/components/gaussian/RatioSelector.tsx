@@ -1,5 +1,6 @@
 import type { AspectRatio } from '@/store/gaussian-store';
 import { ASPECT_RATIOS } from '@/lib/gaussian/presets';
+import { TemplateStar } from '@/components/template';
 
 interface RatioSelectorProps {
   value: AspectRatio;
@@ -36,6 +37,10 @@ export function RatioSelector({
 
   return (
     <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">Aspect Ratio</span>
+        <TemplateStar settingPath="gaussian.ratio" currentValue={value} />
+      </div>
       <div className="grid grid-cols-3 gap-2">
         {ratios.map(([key, { label }]) => (
           <button

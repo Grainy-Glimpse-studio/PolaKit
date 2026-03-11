@@ -11,6 +11,7 @@ import {
   ImagePositionPanel,
 } from '@/components/print';
 import { Button, PageLayout, Panel } from '@/components/ui';
+import { TemplatePanel } from '@/components/template';
 
 interface PrintLayoutProps {
   frameType?: FrameType;
@@ -145,16 +146,32 @@ export function PrintLayout({ frameType = 'polaroid' }: PrintLayoutProps) {
 
         {/* Right Sidebar - Settings */}
         <div className="lg:col-span-3 space-y-4">
-          <Panel title="Layout">
-            <LayoutSettings
-              settings={settings}
-              onUpdate={updateSettings}
-              customPaperSizes={customPaperSizes}
-              onAddCustomPaper={addCustomPaperSize}
-              onRemoveCustomPaper={removeCustomPaperSize}
-              onApplyCustomPaper={applyCustomPaperSize}
-            />
-          </Panel>
+          {/* Template Panel wraps all settings */}
+          <TemplatePanel
+            moduleName="Print"
+            settings={[
+              { path: 'print.paperType', value: settings.paperType },
+              { path: 'print.orientation', value: settings.orientation },
+              { path: 'print.frameType', value: settings.frameType },
+              { path: 'print.imageMode', value: settings.imageMode },
+              { path: 'print.columns', value: settings.columns },
+              { path: 'print.gap', value: settings.gap },
+              { path: 'print.padding', value: settings.padding },
+              { path: 'print.showCutMarks', value: settings.showCutMarks },
+              { path: 'print.cropAdjust', value: settings.cropAdjust },
+            ]}
+          >
+            <Panel title="Layout">
+              <LayoutSettings
+                settings={settings}
+                onUpdate={updateSettings}
+                customPaperSizes={customPaperSizes}
+                onAddCustomPaper={addCustomPaperSize}
+                onRemoveCustomPaper={removeCustomPaperSize}
+                onApplyCustomPaper={applyCustomPaperSize}
+              />
+            </Panel>
+          </TemplatePanel>
 
           {layout && images.length > 0 && (
             <Panel title="Export">

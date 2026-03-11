@@ -1,5 +1,5 @@
 import type { CropperSettings } from '@/types';
-import { Toggle, Slider } from '@/components/ui';
+import { TemplateToggle, TemplateSlider } from '@/components/template';
 import { WizardNavigation } from './WizardNavigation';
 
 interface StepSettingsProps {
@@ -29,31 +29,34 @@ export function StepSettings({
 
         {/* All toggles in one compact section */}
         <div className="p-4 bg-gray-50 rounded-xl space-y-4">
-          <Toggle
+          <TemplateToggle
             checked={settings.enablePerspective}
             onChange={(checked) => onUpdateSettings({ enablePerspective: checked })}
             label="Perspective Correction"
             description="Automatically straighten tilted photos"
+            settingPath="cropper.enablePerspective"
           />
 
           <div className="border-t border-gray-200 pt-4">
-            <Toggle
+            <TemplateToggle
               checked={settings.cropBlackBorder}
               onChange={(checked) => onUpdateSettings({ cropBlackBorder: checked })}
               label="Crop Black Border"
               description="Remove the scanner's dark background"
+              settingPath="cropper.cropBlackBorder"
             />
 
             {/* Border Sensitivity slider - only show when crop is enabled */}
             {settings.cropBlackBorder && (
               <div className="mt-3 ml-14">
-                <Slider
+                <TemplateSlider
                   label="Border Sensitivity"
                   value={settings.threshold}
                   min={10}
                   max={100}
                   step={5}
                   onChange={(value) => onUpdateSettings({ threshold: value })}
+                  settingPath="cropper.threshold"
                 />
                 <p className="text-xs text-gray-400 mt-1">
                   Lower values detect darker borders more aggressively
@@ -63,11 +66,12 @@ export function StepSettings({
           </div>
 
           <div className="border-t border-gray-200 pt-4">
-            <Toggle
+            <TemplateToggle
               checked={settings.extractInnerImage}
               onChange={(checked) => onUpdateSettings({ extractInnerImage: checked })}
               label="Extract Inner Image (white border only)"
               description="Remove the white Polaroid border, keep only the photo"
+              settingPath="cropper.extractInnerImage"
             />
           </div>
         </div>

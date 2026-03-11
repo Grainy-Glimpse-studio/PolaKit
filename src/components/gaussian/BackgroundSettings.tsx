@@ -1,5 +1,5 @@
 import type { BgType, GaussianSettings } from '@/store/gaussian-store';
-import { Slider } from '@/components/ui';
+import { TemplateSlider, TemplateButtonGroup, TemplateStar } from '@/components/template';
 import { ImageLibrary } from './ImageLibrary';
 import { VideoLibrary } from './VideoLibrary';
 
@@ -27,67 +27,63 @@ const SOLID_PRESETS: { color: string; label: string }[] = [
 export function BackgroundSettings({ settings, onUpdate }: BackgroundSettingsProps) {
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        {BG_TYPES.map((type) => (
-          <button
-            key={type.value}
-            onClick={() => onUpdate({ bgType: type.value })}
-            className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors ${
-              settings.bgType === type.value
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            {type.label}
-          </button>
-        ))}
-      </div>
+      <TemplateButtonGroup
+        value={settings.bgType}
+        onChange={(value) => onUpdate({ bgType: value })}
+        options={BG_TYPES}
+        settingPath="gaussian.bgType"
+      />
 
       {settings.bgType === 'blur' && (
         <>
-          <Slider
+          <TemplateSlider
             label="Blur Intensity"
             value={settings.blurIntensity}
             min={0}
             max={100}
             step={1}
             onChange={(value) => onUpdate({ blurIntensity: value })}
+            settingPath="gaussian.blurIntensity"
           />
 
-          <Slider
+          <TemplateSlider
             label="Brightness"
             value={settings.brightness}
             min={50}
             max={150}
             step={1}
             onChange={(value) => onUpdate({ brightness: value })}
+            settingPath="gaussian.brightness"
           />
 
-          <Slider
+          <TemplateSlider
             label="Background Scale"
             value={settings.bgScale}
             min={100}
             max={200}
             step={5}
             onChange={(value) => onUpdate({ bgScale: value })}
+            settingPath="gaussian.bgScale"
           />
 
-          <Slider
+          <TemplateSlider
             label="Position X"
             value={settings.bgOffsetX}
             min={-50}
             max={50}
             step={1}
             onChange={(value) => onUpdate({ bgOffsetX: value })}
+            settingPath="gaussian.bgOffsetX"
           />
 
-          <Slider
+          <TemplateSlider
             label="Position Y"
             value={settings.bgOffsetY}
             min={-50}
             max={50}
             step={1}
             onChange={(value) => onUpdate({ bgOffsetY: value })}
+            settingPath="gaussian.bgOffsetY"
           />
         </>
       )}
@@ -95,9 +91,12 @@ export function BackgroundSettings({ settings, onUpdate }: BackgroundSettingsPro
       {settings.bgType === 'solid' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Quick Colors
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Quick Colors
+              </label>
+              <TemplateStar settingPath="gaussian.bgColor" currentValue={settings.bgColor} />
+            </div>
             <div className="grid grid-cols-6 gap-2">
               {SOLID_PRESETS.map((preset) => (
                 <button
@@ -141,31 +140,34 @@ export function BackgroundSettings({ settings, onUpdate }: BackgroundSettingsPro
 
           {settings.bgImageUrl && (
             <>
-              <Slider
+              <TemplateSlider
                 label="Background Scale"
                 value={settings.bgScale}
                 min={100}
                 max={200}
                 step={5}
                 onChange={(value) => onUpdate({ bgScale: value })}
+                settingPath="gaussian.bgScale"
               />
 
-              <Slider
+              <TemplateSlider
                 label="Position X"
                 value={settings.bgOffsetX}
                 min={-50}
                 max={50}
                 step={1}
                 onChange={(value) => onUpdate({ bgOffsetX: value })}
+                settingPath="gaussian.bgOffsetX"
               />
 
-              <Slider
+              <TemplateSlider
                 label="Position Y"
                 value={settings.bgOffsetY}
                 min={-50}
                 max={50}
                 step={1}
                 onChange={(value) => onUpdate({ bgOffsetY: value })}
+                settingPath="gaussian.bgOffsetY"
               />
             </>
           )}
@@ -183,31 +185,34 @@ export function BackgroundSettings({ settings, onUpdate }: BackgroundSettingsPro
 
           {settings.bgVideoUrl && (
             <>
-              <Slider
+              <TemplateSlider
                 label="Background Scale"
                 value={settings.bgScale}
                 min={100}
                 max={200}
                 step={5}
                 onChange={(value) => onUpdate({ bgScale: value })}
+                settingPath="gaussian.bgScale"
               />
 
-              <Slider
+              <TemplateSlider
                 label="Position X"
                 value={settings.bgOffsetX}
                 min={-50}
                 max={50}
                 step={1}
                 onChange={(value) => onUpdate({ bgOffsetX: value })}
+                settingPath="gaussian.bgOffsetX"
               />
 
-              <Slider
+              <TemplateSlider
                 label="Position Y"
                 value={settings.bgOffsetY}
                 min={-50}
                 max={50}
                 step={1}
                 onChange={(value) => onUpdate({ bgOffsetY: value })}
+                settingPath="gaussian.bgOffsetY"
               />
             </>
           )}
