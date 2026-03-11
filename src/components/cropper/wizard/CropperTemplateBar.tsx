@@ -79,54 +79,76 @@ export function CropperTemplateBar({ settings, showDetails, onToggleDetails }: C
 
   return (
     <div className="flex items-center gap-2">
-      {/* Saved indicator */}
+      {/* Saved indicator - pixel style */}
       {templateColor && (
         <div
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+          className="flex items-center gap-1.5 px-2 py-1 pixel-body border-2 border-pixel-border"
           style={{
-            backgroundColor: `${TEMPLATE_COLORS[templateColor].hex}15`,
+            backgroundColor: `${TEMPLATE_COLORS[templateColor].hex}20`,
             color: TEMPLATE_COLORS[templateColor].hex
           }}
         >
           <div
-            className="w-2 h-2 rounded-full"
+            className="w-2 h-2 border border-pixel-border"
             style={{ backgroundColor: TEMPLATE_COLORS[templateColor].hex }}
           />
           Saved
         </div>
       )}
 
-      {/* Star Button */}
+      {/* Star Button - pixel style */}
       <div className="relative">
         <button
           ref={buttonRef}
           type="button"
           onClick={() => setShowColorPicker(!showColorPicker)}
           className={`
-            w-9 h-9 flex items-center justify-center rounded-lg
-            transition-all duration-150 hover:scale-105
-            bg-white shadow-sm border border-gray-200 hover:border-gray-300
+            w-9 h-9 flex items-center justify-center
+            border-2 border-pixel-border bg-white
+            transition-all shadow-[2px_2px_0px_rgba(0,0,0,0.2)]
+            hover:shadow-[3px_3px_0px_rgba(0,0,0,0.25)]
+            hover:translate-x-[-1px] hover:translate-y-[-1px]
           `}
           title="Save Cropper settings to template"
         >
+          {/* Pixel star icon */}
           <svg
-            viewBox="0 0 24 24"
+            viewBox="0 0 16 16"
             className="w-5 h-5"
             fill={templateColor ? TEMPLATE_COLORS[templateColor].hex : 'none'}
             stroke={templateColor ? TEMPLATE_COLORS[templateColor].hex : '#9CA3AF'}
-            strokeWidth="1.5"
+            strokeWidth="1"
           >
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            <rect x="7" y="1" width="2" height="2" />
+            <rect x="5" y="3" width="2" height="2" />
+            <rect x="9" y="3" width="2" height="2" />
+            <rect x="1" y="5" width="2" height="2" />
+            <rect x="3" y="5" width="2" height="2" />
+            <rect x="5" y="5" width="2" height="2" />
+            <rect x="9" y="5" width="2" height="2" />
+            <rect x="11" y="5" width="2" height="2" />
+            <rect x="13" y="5" width="2" height="2" />
+            <rect x="3" y="7" width="2" height="2" />
+            <rect x="5" y="7" width="2" height="2" />
+            <rect x="7" y="7" width="2" height="2" />
+            <rect x="9" y="7" width="2" height="2" />
+            <rect x="11" y="7" width="2" height="2" />
+            <rect x="5" y="9" width="2" height="2" />
+            <rect x="9" y="9" width="2" height="2" />
+            <rect x="3" y="11" width="2" height="2" />
+            <rect x="11" y="11" width="2" height="2" />
+            <rect x="1" y="13" width="2" height="2" />
+            <rect x="13" y="13" width="2" height="2" />
           </svg>
         </button>
 
-        {/* Color Picker Dropdown */}
+        {/* Color Picker Dropdown - pixel style */}
         {showColorPicker && (
           <div
             ref={colorPickerRef}
-            className="absolute right-0 top-full mt-2 z-[100] bg-white rounded-xl shadow-xl border border-gray-200 p-4"
+            className="absolute right-0 top-full mt-2 z-[100] bg-white border-2 border-pixel-border shadow-[4px_4px_0px_rgba(0,0,0,0.3)] p-4"
           >
-            <p className="text-xs text-gray-500 mb-3 whitespace-nowrap">
+            <p className="pixel-body text-gray-500 mb-3 whitespace-nowrap">
               Save Cropper settings
             </p>
             <div className="flex gap-2">
@@ -136,9 +158,11 @@ export function CropperTemplateBar({ settings, showDetails, onToggleDetails }: C
                   type="button"
                   onClick={() => handleSaveAll(color)}
                   className={`
-                    w-8 h-8 rounded-full transition-all duration-150
-                    hover:scale-110 shadow-sm hover:shadow-md
-                    ${templateColor === color ? 'ring-2 ring-offset-2' : ''}
+                    w-8 h-8 transition-all
+                    border-2 border-pixel-border
+                    hover:shadow-[2px_2px_0px_rgba(0,0,0,0.3)]
+                    hover:translate-x-[-1px] hover:translate-y-[-1px]
+                    ${templateColor === color ? 'ring-2 ring-offset-1 ring-pixel-border' : ''}
                   `}
                   style={{
                     backgroundColor: TEMPLATE_COLORS[color].hex,
@@ -146,18 +170,26 @@ export function CropperTemplateBar({ settings, showDetails, onToggleDetails }: C
                   title={TEMPLATE_COLORS[color].label}
                 />
               ))}
-              {/* Clear button */}
+              {/* Clear button - pixel style */}
               {templateColor && (
                 <button
                   type="button"
                   onClick={handleClearAll}
-                  className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200
-                    flex items-center justify-center transition-all duration-150
-                    hover:scale-110 border border-gray-200"
+                  className="w-8 h-8 bg-gray-100 hover:bg-gray-200
+                    flex items-center justify-center transition-all
+                    border-2 border-pixel-border
+                    hover:shadow-[2px_2px_0px_rgba(0,0,0,0.2)]"
                   title="Clear"
                 >
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  {/* Pixel X icon */}
+                  <svg className="w-3 h-3 text-gray-500" viewBox="0 0 12 12" fill="currentColor">
+                    <rect x="2" y="3" width="2" height="2" />
+                    <rect x="4" y="5" width="2" height="2" />
+                    <rect x="6" y="5" width="2" height="2" />
+                    <rect x="8" y="3" width="2" height="2" />
+                    <rect x="2" y="7" width="2" height="2" />
+                    <rect x="4" y="5" width="2" height="2" />
+                    <rect x="8" y="7" width="2" height="2" />
                   </svg>
                 </button>
               )}
@@ -166,17 +198,19 @@ export function CropperTemplateBar({ settings, showDetails, onToggleDetails }: C
         )}
       </div>
 
-      {/* Details Toggle */}
+      {/* Details Toggle - pixel style */}
       <button
         type="button"
         onClick={onToggleDetails}
         className={`
-          px-3 py-2 text-sm rounded-lg transition-all duration-150
+          px-3 py-1.5 pixel-body transition-all
+          border-2 border-pixel-border
           ${showDetails
-            ? 'bg-blue-50 text-blue-600'
-            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+            ? 'text-pixel-text shadow-[2px_2px_0px_rgba(0,0,0,0.3)]'
+            : 'bg-white text-gray-500 hover:bg-gray-50 shadow-[2px_2px_0px_rgba(0,0,0,0.2)]'
           }
         `}
+        style={showDetails ? { backgroundColor: 'var(--theme-color, #c0c0c0)' } : undefined}
       >
         Details
       </button>

@@ -28,20 +28,25 @@ export function TemplateButtonGroup<T extends string>({
     <div className={className}>
       {label && (
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-gray-700">{label}</label>
+          <label className="pixel-body text-pixel-text">{label}</label>
           <TemplateStar settingPath={settingPath} currentValue={value} />
         </div>
       )}
-      <div className="flex gap-2">
-        {options.map((option) => (
+      <div className="flex border-2 border-pixel-border">
+        {options.map((option, index) => (
           <button
             key={option.value}
             onClick={() => onChange(option.value)}
-            className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors flex items-center justify-center gap-2 ${
-              value === option.value
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-            }`}
+            className={`
+              flex-1 px-3 py-2 pixel-body transition-colors
+              flex items-center justify-center gap-2
+              ${value === option.value
+                ? 'text-pixel-text'
+                : 'bg-white text-pixel-text hover:bg-gray-100'
+              }
+              ${index > 0 ? 'border-l-2 border-pixel-border' : ''}
+            `}
+            style={value === option.value ? { backgroundColor: 'var(--theme-color, #c0c0c0)' } : undefined}
           >
             {option.icon}
             {option.label}

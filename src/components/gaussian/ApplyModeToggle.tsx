@@ -7,27 +7,29 @@ interface ApplyModeToggleProps {
 export function ApplyModeToggle({ mode, onChange, disabled }: ApplyModeToggleProps) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-gray-600">Apply to:</span>
-      <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+      <span className="pixel-body text-pixel-text">Apply to:</span>
+      <div className="flex gap-2">
         <button
           onClick={() => onChange('all')}
           disabled={disabled}
-          className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-            mode === 'all'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`
+            pixel-toggle px-3 py-1.5 pixel-body
+            ${mode === 'all' ? 'active' : ''}
+            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+          `}
+          data-active={mode === 'all'}
         >
           All
         </button>
         <button
           onClick={() => onChange('single')}
           disabled={disabled}
-          className={`px-3 py-1.5 text-sm font-medium transition-colors border-l border-gray-300 ${
-            mode === 'single'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`
+            pixel-toggle px-3 py-1.5 pixel-body
+            ${mode === 'single' ? 'active' : ''}
+            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+          `}
+          data-active={mode === 'single'}
         >
           This
         </button>

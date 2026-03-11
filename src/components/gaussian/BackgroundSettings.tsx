@@ -92,25 +92,30 @@ export function BackgroundSettings({ settings, onUpdate }: BackgroundSettingsPro
         <div className="space-y-3">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="pixel-body text-pixel-text">
                 Quick Colors
               </label>
               <TemplateStar settingPath="gaussian.bgColor" currentValue={settings.bgColor} />
             </div>
+            {/* Pixel-style color swatches */}
             <div className="grid grid-cols-6 gap-2">
               {SOLID_PRESETS.map((preset) => (
                 <button
                   key={preset.color}
                   onClick={() => onUpdate({ bgColor: preset.color })}
                   title={preset.label}
-                  className={`w-8 h-8 rounded-lg border-2 transition-all hover:scale-110 ${
-                    settings.bgColor.toLowerCase() === preset.color.toLowerCase()
-                      ? 'border-blue-500 ring-2 ring-blue-200'
-                      : 'border-gray-300'
-                  }`}
+                  className={`
+                    w-8 h-8 border-2 border-pixel-border
+                    transition-all hover:scale-110
+                    ${settings.bgColor.toLowerCase() === preset.color.toLowerCase()
+                      ? 'ring-2 ring-offset-1'
+                      : ''
+                    }
+                  `}
                   style={{
                     backgroundColor: preset.color,
                     boxShadow: preset.color === '#ffffff' ? 'inset 0 0 0 1px rgba(0,0,0,0.1)' : undefined,
+                    ...(settings.bgColor.toLowerCase() === preset.color.toLowerCase() ? { '--tw-ring-color': 'var(--theme-color, #c0c0c0)' } as React.CSSProperties : {}),
                   }}
                 />
               ))}
@@ -118,15 +123,17 @@ export function BackgroundSettings({ settings, onUpdate }: BackgroundSettingsPro
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block pixel-body text-pixel-text mb-1">
               Custom Color
             </label>
-            <input
-              type="color"
-              value={settings.bgColor}
-              onChange={(e) => onUpdate({ bgColor: e.target.value })}
-              className="w-full h-10 rounded border border-gray-300 cursor-pointer"
-            />
+            <div className="relative">
+              <input
+                type="color"
+                value={settings.bgColor}
+                onChange={(e) => onUpdate({ bgColor: e.target.value })}
+                className="w-full h-10 border-2 border-pixel-border cursor-pointer bg-white"
+              />
+            </div>
           </div>
         </div>
       )}

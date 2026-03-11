@@ -1,6 +1,6 @@
 import type { InputHTMLAttributes } from 'react';
 
-interface SliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+interface PixelSliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label?: string;
   value: number;
   min: number;
@@ -9,10 +9,9 @@ interface SliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onCha
   onChange?: (value: number) => void;
   showValue?: boolean;
   unit?: string;
-  accentColor?: 'gray' | 'rose' | 'violet' | 'cyan';
 }
 
-export function Slider({
+export function PixelSlider({
   label,
   value,
   min,
@@ -23,7 +22,7 @@ export function Slider({
   unit = '',
   className = '',
   ...props
-}: SliderProps) {
+}: PixelSliderProps) {
   const percentage = ((value - min) / (max - min)) * 100;
 
   return (
@@ -40,13 +39,13 @@ export function Slider({
           )}
         </div>
       )}
-      <div className="relative h-3">
+      <div className="relative">
         {/* Track background */}
-        <div className="absolute inset-0 bg-gray-200 border-2 border-pixel-border" />
+        <div className="absolute inset-0 h-3 bg-gray-200 border-2 border-pixel-border" />
 
         {/* Filled track */}
         <div
-          className="absolute top-0 bottom-0 left-0 border-2 border-pixel-border border-r-0"
+          className="absolute h-3 border-2 border-pixel-border border-r-0"
           style={{ width: `${percentage}%`, backgroundColor: 'var(--theme-color, #c0c0c0)' }}
         />
 
@@ -59,7 +58,7 @@ export function Slider({
           step={step}
           onChange={(e) => onChange?.(Number(e.target.value))}
           className="
-            absolute inset-0 w-full h-full appearance-none cursor-pointer bg-transparent z-10
+            relative w-full h-3 appearance-none cursor-pointer bg-transparent z-10
             [&::-webkit-slider-thumb]:appearance-none
             [&::-webkit-slider-thumb]:w-4
             [&::-webkit-slider-thumb]:h-5
@@ -84,8 +83,8 @@ export function Slider({
   );
 }
 
-// Compact slider for tight spaces
-interface CompactSliderProps {
+// Compact version for toolbar
+interface CompactPixelSliderProps {
   value: number;
   min: number;
   max: number;
@@ -94,14 +93,14 @@ interface CompactSliderProps {
   icon?: React.ReactNode;
 }
 
-export function CompactSlider({
+export function CompactPixelSlider({
   value,
   min,
   max,
   step = 1,
   onChange,
   icon,
-}: CompactSliderProps) {
+}: CompactPixelSliderProps) {
   return (
     <div className="flex items-center gap-2">
       {icon && (

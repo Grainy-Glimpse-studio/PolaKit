@@ -16,7 +16,7 @@ interface ExportSettingsProps {
 const RESOLUTIONS = [
   { value: 1080, label: '1080px' },
   { value: 1440, label: '1440px' },
-  { value: 2160, label: '2160px (4K)' },
+  { value: 2160, label: '4K' },
 ];
 
 const NAMING_MODES: { value: NamingMode; label: string; description: string }[] = [
@@ -25,10 +25,10 @@ const NAMING_MODES: { value: NamingMode; label: string; description: string }[] 
   { value: 'original', label: 'Keep Original', description: 'photo' },
 ];
 
-const EXPORT_FORMATS: { value: ExportFormat; label: string; icon: string }[] = [
-  { value: 'jpg', label: 'JPG', icon: 'image' },
-  { value: 'mp4', label: 'MP4', icon: 'video' },
-  { value: 'gif', label: 'GIF', icon: 'gif' },
+const EXPORT_FORMATS: { value: ExportFormat; label: string }[] = [
+  { value: 'jpg', label: 'JPG' },
+  { value: 'mp4', label: 'MP4' },
+  { value: 'gif', label: 'GIF' },
 ];
 
 export function ExportSettings({
@@ -46,36 +46,48 @@ export function ExportSettings({
 
   return (
     <div className="space-y-4">
-      {/* Export Format */}
+      {/* Export Format - pixel style button group */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block pixel-body text-pixel-text mb-2">
           Format
         </label>
-        <div className="grid grid-cols-3 gap-2">
-          {EXPORT_FORMATS.map((format) => {
+        <div className="flex border-2 border-pixel-border">
+          {EXPORT_FORMATS.map((format, index) => {
             const isDisabled = format.value !== 'jpg' && !hasVideo;
             return (
               <button
                 key={format.value}
                 onClick={() => !isDisabled && onExportFormatChange(format.value)}
                 disabled={isDisabled}
-                className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center justify-center gap-1.5 ${
-                  exportFormat === format.value
-                    ? 'bg-blue-600 text-white border-blue-600'
+                className={`
+                  flex-1 px-3 py-2 pixel-body
+                  flex items-center justify-center gap-1.5
+                  transition-colors
+                  ${exportFormat === format.value
+                    ? 'text-pixel-text'
                     : isDisabled
-                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                }`}
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-pixel-text hover:bg-gray-50'
+                  }
+                  ${index > 0 ? 'border-l-2 border-pixel-border' : ''}
+                `}
+                style={exportFormat === format.value ? { backgroundColor: 'var(--theme-color, #c0c0c0)' } : undefined}
                 title={isDisabled ? 'Requires video background' : undefined}
               >
+                {/* Pixel icons */}
                 {format.value === 'jpg' && (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="2" y="2" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <rect x="5" y="5" width="2" height="2" />
+                    <rect x="3" y="10" width="3" height="3" />
+                    <rect x="7" y="8" width="3" height="3" />
                   </svg>
                 )}
                 {format.value === 'mp4' && (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="1" y="4" width="10" height="8" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <rect x="12" y="5" width="3" height="2" />
+                    <rect x="12" y="9" width="3" height="2" />
                   </svg>
                 )}
                 {format.value === 'gif' && (
@@ -87,7 +99,7 @@ export function ExportSettings({
           })}
         </div>
         {!hasVideo && (
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="pixel-body text-gray-400 text-sm mt-1">
             Video/GIF export requires video background
           </p>
         )}
@@ -106,21 +118,25 @@ export function ExportSettings({
         />
       )}
 
-      {/* Resolution */}
+      {/* Resolution - pixel style button group */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block pixel-body text-pixel-text mb-2">
           Resolution
         </label>
-        <div className="grid grid-cols-3 gap-2">
-          {RESOLUTIONS.map((res) => (
+        <div className="flex border-2 border-pixel-border">
+          {RESOLUTIONS.map((res, index) => (
             <button
               key={res.value}
               onClick={() => onUpdate({ resolution: res.value })}
-              className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
-                settings.resolution === res.value
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-              }`}
+              className={`
+                flex-1 px-3 py-2 pixel-body transition-colors
+                ${settings.resolution === res.value
+                  ? 'text-pixel-text'
+                  : 'bg-white text-pixel-text hover:bg-gray-50'
+                }
+                ${index > 0 ? 'border-l-2 border-pixel-border' : ''}
+              `}
+              style={settings.resolution === res.value ? { backgroundColor: 'var(--theme-color, #c0c0c0)' } : undefined}
             >
               {res.label}
             </button>
@@ -128,27 +144,32 @@ export function ExportSettings({
         </div>
       </div>
 
-      {/* File Naming */}
+      {/* File Naming - pixel style list */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block pixel-body text-pixel-text mb-2">
           File Naming
         </label>
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {NAMING_MODES.map((mode) => (
             <button
               key={mode.value}
               onClick={() => onNamingModeChange(mode.value)}
-              className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
-                namingMode === mode.value
-                  ? 'bg-blue-50 border-blue-500'
-                  : 'bg-white border-gray-300 hover:border-gray-400'
-              }`}
+              className={`
+                w-full text-left px-3 py-2
+                border-2 border-pixel-border
+                transition-all
+                ${namingMode === mode.value
+                  ? 'bg-red-50'
+                  : 'bg-white hover:bg-gray-50'
+                }
+              `}
+              style={namingMode === mode.value ? { borderColor: 'var(--theme-color, #e41b13)' } : undefined}
             >
               <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${namingMode === mode.value ? 'text-blue-700' : 'text-gray-700'}`}>
+                <span className="pixel-body text-pixel-text">
                   {mode.label}
                 </span>
-                <span className={`text-xs ${namingMode === mode.value ? 'text-blue-500' : 'text-gray-400'}`}>
+                <span className={`pixel-body text-sm ${namingMode === mode.value ? 'text-pixel-text' : 'text-gray-400'}`}>
                   {mode.description}
                 </span>
               </div>

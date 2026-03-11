@@ -58,13 +58,14 @@ export function DropZone({ onFilesSelect, disabled, compact }: DropZoneProps) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-          relative rounded-xl p-4 text-center transition-all duration-200
-          border-2 border-dashed
+          relative p-3 text-center transition-all
+          border-2 border-dashed border-pixel-border
           ${isDragging
-            ? 'border-gray-400 bg-gray-50'
-            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'}
+            ? 'bg-gray-100'
+            : 'bg-white hover:bg-gray-50'}
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}
+        style={isDragging ? { backgroundColor: 'color-mix(in srgb, var(--theme-color, #c0c0c0) 15%, white)' } : undefined}
       >
         <input
           type="file"
@@ -74,11 +75,13 @@ export function DropZone({ onFilesSelect, disabled, compact }: DropZoneProps) {
           disabled={disabled}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
         />
-        <div className="flex items-center justify-center gap-2 text-gray-500">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+        <div className="flex items-center justify-center gap-2 text-pixel-text">
+          {/* Pixel plus icon */}
+          <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+            <rect x="7" y="2" width="2" height="12" />
+            <rect x="2" y="7" width="12" height="2" />
           </svg>
-          <span className="text-sm">Add more photos</span>
+          <span className="pixel-body">Add more</span>
         </div>
       </div>
     );
@@ -90,8 +93,8 @@ export function DropZone({ onFilesSelect, disabled, compact }: DropZoneProps) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`
-        relative rounded-2xl transition-all duration-300 overflow-hidden
-        ${isDragging ? 'scale-[1.02]' : ''}
+        relative transition-all
+        ${isDragging ? 'scale-[1.01]' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer group'}
       `}
     >
@@ -104,74 +107,73 @@ export function DropZone({ onFilesSelect, disabled, compact }: DropZoneProps) {
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
       />
 
-      {/* Polaroid-style drop area */}
+      {/* Pixel-style Polaroid drop area */}
       <div
         className={`
-          bg-white p-3 pb-12 shadow-lg transition-all duration-300
-          ${isDragging ? 'shadow-xl' : 'group-hover:shadow-xl'}
+          bg-white p-3 pb-10 border-3 border-pixel-border
+          shadow-[4px_4px_0px_rgba(0,0,0,0.2)]
+          transition-all
+          ${isDragging ? 'shadow-[6px_6px_0px_rgba(0,0,0,0.3)]' : 'group-hover:shadow-[6px_6px_0px_rgba(0,0,0,0.25)]'}
         `}
       >
-        {/* Image area with gradient */}
+        {/* Image area */}
         <div
           className={`
-            aspect-[4/3] rounded-sm flex flex-col items-center justify-center
-            transition-all duration-300
+            aspect-[4/3] flex flex-col items-center justify-center
+            border-2 border-dashed border-pixel-border
+            transition-all
             ${isDragging
-              ? 'bg-gradient-to-br from-violet-100 to-purple-100'
-              : 'bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-violet-50 group-hover:to-purple-50'}
+              ? ''
+              : 'bg-gray-50 group-hover:bg-gray-100'}
           `}
+          style={isDragging ? {
+            backgroundColor: 'color-mix(in srgb, var(--theme-color, #c0c0c0) 15%, white)',
+            borderColor: 'var(--theme-color, #c0c0c0)'
+          } : undefined}
         >
-          {/* Camera icon */}
+          {/* Pixel camera icon */}
           <div
             className={`
-              w-16 h-16 rounded-full flex items-center justify-center mb-4
-              transition-all duration-300
+              w-14 h-14 flex items-center justify-center mb-3
+              border-2 border-pixel-border
+              transition-all
               ${isDragging
-                ? 'bg-violet-200 text-violet-600'
-                : 'bg-gray-200 text-gray-400 group-hover:bg-violet-100 group-hover:text-violet-500'}
+                ? 'text-pixel-text'
+                : 'bg-gray-100 text-pixel-text'}
             `}
+            style={isDragging ? { backgroundColor: 'var(--theme-color, #c0c0c0)' } : undefined}
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-              />
+            {/* 8-bit camera icon */}
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="3" y="7" width="18" height="13" />
+              <rect x="8" y="4" width="8" height="3" />
+              <rect x="9" y="10" width="6" height="6" fill="white" />
+              <rect x="10" y="11" width="4" height="4" fill="currentColor" />
             </svg>
           </div>
 
-          <p className={`
-            text-base font-medium transition-colors duration-300
-            ${isDragging ? 'text-violet-600' : 'text-gray-500 group-hover:text-violet-600'}
-          `}>
-            {isDragging ? 'Drop your photos here' : 'Drop photos here'}
+          <p className="pixel-body font-bold transition-colors text-pixel-text">
+            {isDragging ? 'Drop photos here' : 'Drop photos here'}
           </p>
 
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="pixel-body text-gray-500 mt-1">
             or click to browse
           </p>
 
-          {/* Animated dots when dragging */}
+          {/* Pixel loading dots when dragging */}
           {isDragging && (
-            <div className="flex gap-1 mt-4">
-              <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="flex gap-1 mt-3">
+              <span className="w-2 h-2 animate-pulse" style={{ backgroundColor: 'var(--theme-color, #c0c0c0)', animationDelay: '0ms' }} />
+              <span className="w-2 h-2 animate-pulse" style={{ backgroundColor: 'var(--theme-color, #c0c0c0)', animationDelay: '150ms' }} />
+              <span className="w-2 h-2 animate-pulse" style={{ backgroundColor: 'var(--theme-color, #c0c0c0)', animationDelay: '300ms' }} />
             </div>
           )}
         </div>
       </div>
 
-      {/* Handwritten label */}
-      <div className="absolute bottom-3 left-0 right-0 text-center">
-        <span className="handwritten text-lg text-gray-400">
+      {/* Pixel label */}
+      <div className="absolute bottom-2 left-0 right-0 text-center">
+        <span className="pixel-body text-gray-400 text-sm">
           JPG, PNG, WebP
         </span>
       </div>

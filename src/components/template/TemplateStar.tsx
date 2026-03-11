@@ -18,7 +18,7 @@ export function TemplateStar({ settingPath, currentValue }: TemplateStarProps) {
   const { showIndividualStars } = useTemplatePanelContext();
   const assignedColor = getSettingColor(settingPath);
 
-  // Close popover when clicking outside - MUST be before any conditional returns
+  // Close popover when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -63,73 +63,68 @@ export function TemplateStar({ settingPath, currentValue }: TemplateStarProps) {
         }}
         type="button"
         className={`
-          w-7 h-7 flex items-center justify-center rounded-full
-          transition-all duration-150 hover:scale-110 hover:bg-gray-100
-          ${assignedColor ? 'bg-gray-50' : 'bg-transparent'}
+          w-6 h-6 flex items-center justify-center
+          border-2 border-pixel-border
+          transition-all hover:bg-gray-100
+          ${assignedColor ? 'bg-gray-50' : 'bg-white'}
         `}
         title={assignedColor ? `Template: ${TEMPLATE_COLORS[assignedColor].label}` : 'Add to template'}
       >
+        {/* Pixel star icon */}
         <svg
-          viewBox="0 0 24 24"
-          className="w-5 h-5"
+          viewBox="0 0 16 16"
+          className="w-4 h-4"
           fill={assignedColor ? TEMPLATE_COLORS[assignedColor].hex : 'none'}
-          stroke={assignedColor ? TEMPLATE_COLORS[assignedColor].hex : '#6B7280'}
-          strokeWidth="1.5"
+          stroke={assignedColor ? TEMPLATE_COLORS[assignedColor].hex : '#2a2a2a'}
+          strokeWidth="1"
         >
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          <path d="M8 1L10 6H15L11 9L13 15L8 11L3 15L5 9L1 6H6L8 1Z" />
         </svg>
       </button>
 
-      {/* Color picker popover */}
+      {/* Color picker popover - pixel style */}
       {isOpen && (
         <div
           ref={popoverRef}
           className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2
-            bg-white rounded-lg shadow-lg border border-gray-200 p-2
-            animate-in fade-in zoom-in-95 duration-150"
+            bg-white border-2 border-pixel-border p-2
+            shadow-[4px_4px_0px_rgba(0,0,0,0.3)]"
         >
-          <div className="flex gap-1.5">
+          <div className="flex gap-1">
             {TEMPLATE_COLOR_ORDER.map((color) => (
               <button
                 key={color}
                 type="button"
                 onClick={() => handleColorSelect(color)}
                 className={`
-                  w-6 h-6 rounded-full transition-all duration-150
-                  hover:scale-110 hover:ring-2 hover:ring-offset-1
+                  w-5 h-5 border-2 border-pixel-border
+                  transition-all hover:scale-110
                   ${assignedColor === color ? 'ring-2 ring-offset-1' : ''}
                 `}
                 style={{
                   backgroundColor: TEMPLATE_COLORS[color].hex,
+                  ...(assignedColor === color ? { '--tw-ring-color': 'var(--theme-color, #c0c0c0)' } as React.CSSProperties : {}),
                 }}
                 title={TEMPLATE_COLORS[color].label}
               />
             ))}
             {assignedColor && (
               <>
-                <div className="w-px bg-gray-200 mx-0.5" />
+                <div className="w-px bg-pixel-border mx-0.5" />
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200
-                    flex items-center justify-center transition-colors"
+                  className="w-5 h-5 border-2 border-pixel-border bg-gray-100 hover:bg-gray-200
+                    flex items-center justify-center"
                   title="Remove from template"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-3.5 h-3.5 text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M18 6L6 18M6 6l12 12" />
-                  </svg>
+                  <span className="text-pixel-text text-xs font-bold">X</span>
                 </button>
               </>
             )}
           </div>
-          {/* Arrow */}
-          <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-gray-200 rotate-45" />
+          {/* Pixel arrow */}
+          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border-l-2 border-t-2 border-pixel-border rotate-45" />
         </div>
       )}
     </div>

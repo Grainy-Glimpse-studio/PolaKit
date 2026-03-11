@@ -10,8 +10,13 @@ import {
   ApplyModeToggle,
   ExportSettings,
 } from '@/components/gaussian';
-import { Button, PageLayout, Panel } from '@/components/ui';
 import { TemplatePanel } from '@/components/template';
+import {
+  PixelButton,
+  PixelPanel,
+  PixelPageLayout,
+  PixelCanvas,
+} from '@/components/pixel-ui';
 
 export function GaussianBg() {
   const {
@@ -71,9 +76,9 @@ export function GaussianBg() {
   const getExportLabel = () => {
     switch (exportFormat) {
       case 'mp4':
-        return 'Export MP4';
+        return 'MP4';
       case 'gif':
-        return 'Export GIF';
+        return 'GIF';
       default:
         return 'Export';
     }
@@ -81,10 +86,10 @@ export function GaussianBg() {
 
   const headerActions = hasImages ? (
     <>
-      <Button variant="ghost" size="sm" onClick={clearImages}>
+      <PixelButton variant="ghost" size="sm" onClick={clearImages}>
         Clear
-      </Button>
-      <Button
+      </PixelButton>
+      <PixelButton
         variant="secondary"
         size="sm"
         onClick={handleExport}
@@ -97,175 +102,177 @@ export function GaussianBg() {
         loading={exporting}
       >
         {getExportLabel()}
-      </Button>
+      </PixelButton>
       {images.length > 1 && exportFormat === 'jpg' && (
-        <Button
+        <PixelButton
           variant="primary"
           size="sm"
           onClick={exportAll}
           loading={exporting}
         >
-          Export All ({images.length})
-        </Button>
+          All ({images.length})
+        </PixelButton>
       )}
     </>
   ) : null;
 
   return (
-    <PageLayout
-      title="Gaussian Background"
-      subtitle="Create stunning blurred backgrounds"
-      headerActions={headerActions}
-      accentColor="violet"
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Sidebar */}
-        <div className="lg:col-span-3 space-y-4">
-          <Panel title="Presets">
-            <PresetManager
-              activePreset={activePreset}
-              customPresets={customPresets}
-              onApply={applyPreset}
-              onSave={saveCustomPreset}
-              onDelete={deleteCustomPreset}
-            />
-          </Panel>
-
-          <Panel title="Aspect Ratio">
-            <RatioSelector
-              value={settings.ratio}
-              customW={settings.customRatioW}
-              customH={settings.customRatioH}
-              onChange={(ratio) => updateSettings({ ratio })}
-              onCustomChange={(w, h) =>
-                updateSettings({ customRatioW: w, customRatioH: h })
-              }
-            />
-          </Panel>
-
-          <Panel title="Export">
-            <ExportSettings
-              settings={settings}
-              onUpdate={updateSettings}
-              namingMode={namingMode}
-              onNamingModeChange={setNamingMode}
-              exportFormat={exportFormat}
-              onExportFormatChange={setExportFormat}
-              videoDuration={videoDuration}
-              onVideoDurationChange={setVideoDuration}
-              hasVideo={hasVideo}
-            />
-          </Panel>
-        </div>
-
-        {/* Center - Preview */}
-        <div className="lg:col-span-6 space-y-4">
-          {!hasImages ? (
-            <Panel noPadding>
-              <div className="p-6">
-                <DropZone onFilesSelect={handleFilesSelect} />
-              </div>
-            </Panel>
-          ) : (
-            <>
-              {/* Preview Canvas */}
-              <Panel noPadding className="overflow-hidden">
-                <PreviewCanvas
-                  canvasRef={canvasRef}
-                  hasImage={!!loadedImage}
-                  onDrag={(dx, dy) => {
-                    updateSettings({
-                      polaroidOffsetX: settings.polaroidOffsetX + dx,
-                      polaroidOffsetY: settings.polaroidOffsetY + dy,
-                    });
-                  }}
-                />
-              </Panel>
-
-              {/* Image Navigation */}
-              {images.length > 1 && (
-                <ImageNavigation
-                  currentIndex={currentIndex}
-                  totalImages={images.length}
-                  onPrev={prevImage}
-                  onNext={nextImage}
-                  onGoTo={setCurrentIndex}
-                />
-              )}
-
-              {/* Add more */}
-              <DropZone onFilesSelect={handleFilesSelect} compact />
-            </>
-          )}
-        </div>
-
-        {/* Right Sidebar */}
-        <div className="lg:col-span-3 space-y-4">
-          {/* Apply Mode Toggle - only show when multiple images */}
-          {images.length > 1 && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-3">
-              <ApplyModeToggle
-                mode={applyMode}
-                onChange={setApplyMode}
+    <PixelCanvas>
+      <PixelPageLayout
+        title="Blur BG"
+        subtitle="Create stunning blurred backgrounds"
+        headerActions={headerActions}
+        themeColor="#e41b13"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Sidebar */}
+          <div className="lg:col-span-3 space-y-4">
+            <PixelPanel title="Presets">
+              <PresetManager
+                activePreset={activePreset}
+                customPresets={customPresets}
+                onApply={applyPreset}
+                onSave={saveCustomPreset}
+                onDelete={deleteCustomPreset}
               />
-            </div>
-          )}
+            </PixelPanel>
 
-          {/* Template Panel wraps all settings */}
-          <TemplatePanel
-            moduleName="Blur"
-            settings={[
-              { path: 'gaussian.ratio', value: settings.ratio },
-              { path: 'gaussian.polaroidSize', value: settings.polaroidSize },
-              { path: 'gaussian.polaroidOffsetX', value: settings.polaroidOffsetX },
-              { path: 'gaussian.polaroidOffsetY', value: settings.polaroidOffsetY },
-              { path: 'gaussian.bgType', value: settings.bgType },
-              { path: 'gaussian.blurIntensity', value: settings.blurIntensity },
-              { path: 'gaussian.brightness', value: settings.brightness },
-              { path: 'gaussian.bgScale', value: settings.bgScale },
-              { path: 'gaussian.bgOffsetX', value: settings.bgOffsetX },
-              { path: 'gaussian.bgOffsetY', value: settings.bgOffsetY },
-              { path: 'gaussian.bgColor', value: settings.bgColor },
-              { path: 'gaussian.shadow', value: settings.shadow },
-              { path: 'gaussian.shadowBlur', value: settings.shadowBlur },
-              { path: 'gaussian.shadowOpacity', value: settings.shadowOpacity },
-            ]}
-          >
-            <div className="space-y-4">
-              <Panel title="Background">
-                <BackgroundSettings
-                  settings={settings}
-                  onUpdate={updateSettings}
+            <PixelPanel title="Ratio">
+              <RatioSelector
+                value={settings.ratio}
+                customW={settings.customRatioW}
+                customH={settings.customRatioH}
+                onChange={(ratio) => updateSettings({ ratio })}
+                onCustomChange={(w, h) =>
+                  updateSettings({ customRatioW: w, customRatioH: h })
+                }
+              />
+            </PixelPanel>
+
+            <PixelPanel title="Export">
+              <ExportSettings
+                settings={settings}
+                onUpdate={updateSettings}
+                namingMode={namingMode}
+                onNamingModeChange={setNamingMode}
+                exportFormat={exportFormat}
+                onExportFormatChange={setExportFormat}
+                videoDuration={videoDuration}
+                onVideoDurationChange={setVideoDuration}
+                hasVideo={hasVideo}
+              />
+            </PixelPanel>
+          </div>
+
+          {/* Center - Preview */}
+          <div className="lg:col-span-6 space-y-4">
+            {!hasImages ? (
+              <PixelPanel noPadding>
+                <div className="p-6">
+                  <DropZone onFilesSelect={handleFilesSelect} />
+                </div>
+              </PixelPanel>
+            ) : (
+              <>
+                {/* Preview Canvas */}
+                <PixelPanel noPadding className="overflow-hidden">
+                  <PreviewCanvas
+                    canvasRef={canvasRef}
+                    hasImage={!!loadedImage}
+                    onDrag={(dx, dy) => {
+                      updateSettings({
+                        polaroidOffsetX: settings.polaroidOffsetX + dx,
+                        polaroidOffsetY: settings.polaroidOffsetY + dy,
+                      });
+                    }}
+                  />
+                </PixelPanel>
+
+                {/* Image Navigation */}
+                {images.length > 1 && (
+                  <ImageNavigation
+                    currentIndex={currentIndex}
+                    totalImages={images.length}
+                    onPrev={prevImage}
+                    onNext={nextImage}
+                    onGoTo={setCurrentIndex}
+                  />
+                )}
+
+                {/* Add more */}
+                <DropZone onFilesSelect={handleFilesSelect} compact />
+              </>
+            )}
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Apply Mode Toggle - only show when multiple images */}
+            {images.length > 1 && (
+              <div className="pixel-panel p-3">
+                <ApplyModeToggle
+                  mode={applyMode}
+                  onChange={setApplyMode}
                 />
-              </Panel>
-
-              <Panel title="Polaroid">
-                <PolaroidSettings
-                  settings={settings}
-                  onUpdate={updateSettings}
-                />
-              </Panel>
-            </div>
-          </TemplatePanel>
-
-          {/* Quick info */}
-          <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-4 border border-violet-100">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-violet-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                </svg>
               </div>
-              <div>
-                <p className="text-sm font-medium text-violet-800">Pro tip</p>
-                <p className="text-sm text-violet-600 mt-0.5">
-                  Use Story preset for Instagram Stories, or save your own custom presets.
-                </p>
+            )}
+
+            {/* Template Panel wraps all settings */}
+            <TemplatePanel
+              moduleName="Blur"
+              settings={[
+                { path: 'gaussian.ratio', value: settings.ratio },
+                { path: 'gaussian.polaroidSize', value: settings.polaroidSize },
+                { path: 'gaussian.polaroidOffsetX', value: settings.polaroidOffsetX },
+                { path: 'gaussian.polaroidOffsetY', value: settings.polaroidOffsetY },
+                { path: 'gaussian.bgType', value: settings.bgType },
+                { path: 'gaussian.blurIntensity', value: settings.blurIntensity },
+                { path: 'gaussian.brightness', value: settings.brightness },
+                { path: 'gaussian.bgScale', value: settings.bgScale },
+                { path: 'gaussian.bgOffsetX', value: settings.bgOffsetX },
+                { path: 'gaussian.bgOffsetY', value: settings.bgOffsetY },
+                { path: 'gaussian.bgColor', value: settings.bgColor },
+                { path: 'gaussian.shadow', value: settings.shadow },
+                { path: 'gaussian.shadowBlur', value: settings.shadowBlur },
+                { path: 'gaussian.shadowOpacity', value: settings.shadowOpacity },
+              ]}
+            >
+              <div className="space-y-4">
+                <PixelPanel title="Background">
+                  <BackgroundSettings
+                    settings={settings}
+                    onUpdate={updateSettings}
+                  />
+                </PixelPanel>
+
+                <PixelPanel title="Polaroid">
+                  <PolaroidSettings
+                    settings={settings}
+                    onUpdate={updateSettings}
+                  />
+                </PixelPanel>
+              </div>
+            </TemplatePanel>
+
+            {/* Quick info - pixel style */}
+            <div className="pixel-panel p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 border-2 border-pixel-border bg-red-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-pixel-red" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="pixel-body font-bold text-pixel-red">Pro tip</p>
+                  <p className="pixel-body text-gray-600 mt-0.5">
+                    Use Story preset for Instagram Stories, or save your own custom presets.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </PageLayout>
+      </PixelPageLayout>
+    </PixelCanvas>
   );
 }

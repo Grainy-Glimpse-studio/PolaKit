@@ -17,6 +17,21 @@ export default {
           white: '#FEFEFE',
           shadow: 'rgba(0, 0, 0, 0.08)',
         },
+        // Pixel-style color palette (coordinated with cream theme)
+        pixel: {
+          bg: '#FAF8F5',        // cream-100
+          panel: '#FFFFFF',      // panel background
+          border: '#2a2a2a',     // hard border
+          text: '#2a2a2a',       // text
+          accent: '#8b5cf6',     // violet-500 (legacy)
+          shadow: '#1a1a1a',     // 3D shadow
+          gray: '#c0c0c0',       // button default gray
+          // Polaroid brand colors
+          red: '#e41b13',        // Polaroid Crimson (GaussianBg)
+          yellow: '#fdc800',     // Polaroid Supernova (Cropper)
+          cyan: '#00a3e2',       // Polaroid Cerulean (PrintLayout)
+          rose: '#f43f5e',       // rose-500 (legacy)
+        },
       },
       fontFamily: {
         display: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],

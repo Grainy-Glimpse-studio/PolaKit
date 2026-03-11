@@ -19,7 +19,7 @@ export function WizardStepper({
   canNavigate = () => true,
 }: WizardStepperProps) {
   return (
-    <div className="flex items-center justify-center gap-2 sm:gap-4">
+    <div className="flex items-center justify-center gap-2 sm:gap-3">
       {steps.map((step, index) => {
         const isActive = currentStep === step.number;
         const isCompleted = currentStep > step.number;
@@ -27,57 +27,64 @@ export function WizardStepper({
 
         return (
           <div key={step.number} className="flex items-center">
-            {/* Step indicator */}
+            {/* Step indicator - pixel style */}
             <button
               onClick={() => isClickable && onStepClick?.(step.number)}
               disabled={!isClickable}
               className={`
-                flex items-center gap-2 px-3 py-1.5 rounded-full transition-all
+                flex items-center gap-2 px-3 py-1.5
+                border-2 border-pixel-border
+                transition-all
                 ${isActive
-                  ? 'bg-rose-500 text-white shadow-md'
+                  ? 'text-pixel-text shadow-[3px_3px_0px_rgba(0,0,0,0.3)]'
                   : isCompleted
-                    ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
-                    : 'bg-gray-100 text-gray-400'
+                    ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 shadow-[2px_2px_0px_rgba(0,0,0,0.2)]'
+                    : 'bg-gray-100 text-gray-400 shadow-[2px_2px_0px_rgba(0,0,0,0.1)]'
                 }
-                ${isClickable && !isActive ? 'cursor-pointer' : ''}
+                ${isClickable && !isActive ? 'cursor-pointer hover:translate-x-[-1px] hover:translate-y-[-1px]' : ''}
                 ${!isClickable ? 'cursor-default' : ''}
               `}
+              style={isActive ? { backgroundColor: 'var(--theme-color, #fdc800)' } : undefined}
             >
+              {/* Step number - pixel style */}
               <span
                 className={`
-                  w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium
+                  w-5 h-5 flex items-center justify-center pixel-body text-sm font-bold
+                  border border-current
                   ${isActive
-                    ? 'bg-white/20'
+                    ? 'bg-white/20 border-pixel-border/30'
                     : isCompleted
-                      ? 'bg-rose-200 text-rose-700'
-                      : 'bg-gray-200 text-gray-400'
+                      ? 'bg-amber-200 border-amber-600'
+                      : 'bg-gray-200 border-gray-300'
                   }
                 `}
               >
                 {isCompleted ? (
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
+                  // Pixel checkmark
+                  <svg className="w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                    <rect x="2" y="5" width="2" height="2" />
+                    <rect x="4" y="7" width="2" height="2" />
+                    <rect x="6" y="5" width="2" height="2" />
+                    <rect x="8" y="3" width="2" height="2" />
                   </svg>
                 ) : (
                   step.number
                 )}
               </span>
-              <span className="text-sm font-medium hidden sm:inline">
+              <span className="pixel-body text-sm hidden sm:inline">
                 {step.label}
               </span>
             </button>
 
-            {/* Connector line */}
+            {/* Connector line - pixel dashed style */}
             {index < steps.length - 1 && (
               <div
                 className={`
-                  w-8 sm:w-12 h-0.5 mx-1 sm:mx-2 transition-colors
-                  ${currentStep > step.number ? 'bg-rose-300' : 'bg-gray-200'}
+                  w-6 sm:w-10 h-0 mx-1 sm:mx-2
+                  border-t-2 border-dashed
+                  ${currentStep > step.number ? 'border-amber-500' : 'border-gray-300'}
                 `}
+                style={currentStep > step.number ? { borderColor: 'var(--theme-color, #fdc800)' } : undefined}
               />
             )}
           </div>

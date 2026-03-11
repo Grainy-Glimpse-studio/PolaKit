@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Google Fonts - Caveat for handwriting style, Press Start 2P for pixel text */
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Press+Start+2P&display=swap');
+/* Google Fonts - Caveat for handwriting style, Press Start 2P for pixel titles, VT323 for pixel body text */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Press+Start+2P&family=VT323&display=swap');
 
 :root {
   --rainbow-1: #FF6B6B;
@@ -287,4 +287,263 @@ body {
   20%, 24%, 55% {
     opacity: 0.88;
   }
+}
+
+/* ========================================
+   PIXEL UI STYLES
+   ======================================== */
+
+/* Pixel-style button - Retro Peak Studio inspired */
+.pixel-btn {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  background-color: #c0c0c0;
+  color: #2a2a2a;
+  border: 3px solid #fff;
+  border-radius: 0;
+  box-shadow: 4px 4px 0px #1a1a1a;
+  transition: transform 0.1s, box-shadow 0.1s, filter 0.1s, background-color 0.1s;
+  image-rendering: pixelated;
+  text-transform: uppercase;
+}
+
+.pixel-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #1a1a1a;
+}
+
+.pixel-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #1a1a1a;
+  border-style: inset;
+}
+
+/* Active/selected state for pixel buttons - uses CSS variable for theme color */
+.pixel-btn.active,
+.pixel-btn[data-active="true"] {
+  background-color: var(--theme-color, #c0c0c0) !important;
+  color: #2a2a2a;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #1a1a1a;
+  border-style: inset;
+}
+
+.pixel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Pixel button group selection - for toggle buttons */
+.pixel-btn-group .pixel-btn {
+  background-color: #c0c0c0;
+}
+
+.pixel-btn-group .pixel-btn:hover:not(:disabled):not(.active) {
+  filter: brightness(1.1);
+}
+
+.pixel-btn-group .pixel-btn.active {
+  background-color: var(--theme-color, #c0c0c0);
+}
+
+/* Pixel color swatch - for color pickers */
+.pixel-swatch {
+  border: 2px solid #2a2a2a;
+  box-shadow: 2px 2px 0px #1a1a1a;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s;
+}
+
+.pixel-swatch:hover {
+  transform: scale(1.2) translate(-1px, -1px);
+  z-index: 10;
+  position: relative;
+  border-color: #fff;
+  box-shadow: 3px 3px 0px #1a1a1a;
+}
+
+.pixel-swatch.active,
+.pixel-swatch[data-active="true"] {
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #1a1a1a, 3px 3px 0px #1a1a1a;
+  z-index: 20;
+  transform: scale(1.1);
+}
+
+/* Pixel toggle button */
+.pixel-toggle {
+  background-color: #c0c0c0;
+  color: #2a2a2a;
+  border: 3px solid #fff;
+  box-shadow: 4px 4px 0px #1a1a1a;
+  transition: transform 0.1s, box-shadow 0.1s, filter 0.1s, background-color 0.1s;
+}
+
+.pixel-toggle:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #1a1a1a;
+}
+
+.pixel-toggle.active,
+.pixel-toggle[data-active="true"] {
+  background-color: var(--theme-color, #c0c0c0);
+  color: #2a2a2a;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #1a1a1a;
+  border-style: inset;
+}
+
+.pixel-toggle:active:not(:disabled):not(.active) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #1a1a1a;
+}
+
+/* Pixel option button (for format selectors, etc.) */
+.pixel-option {
+  background-color: #c0c0c0;
+  color: #2a2a2a;
+  border: 2px solid #2a2a2a;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s, box-shadow 0.1s, filter 0.1s, background-color 0.1s;
+}
+
+.pixel-option:hover:not(:disabled):not(.active) {
+  filter: brightness(1.1);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.35);
+}
+
+.pixel-option.active,
+.pixel-option[data-active="true"] {
+  background-color: var(--theme-color, #c0c0c0);
+  color: #2a2a2a;
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+  border-style: inset;
+}
+
+/* Pixel-style panel */
+.pixel-panel {
+  border: 3px solid #2a2a2a;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  border-radius: 0;
+  background: #ffffff;
+}
+
+/* Pixel-style label */
+.pixel-label {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  text-transform: uppercase;
+  border-bottom: 2px dashed #2a2a2a;
+  padding-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* Pixel body text - more readable for form labels */
+.pixel-body {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
+/* Pixel grid overlay */
+.pixel-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+/* Pixel input styles */
+.pixel-input {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  border: 2px solid #2a2a2a;
+  border-radius: 0;
+  background: #ffffff;
+  padding: 8px 12px;
+}
+
+.pixel-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--theme-color, #8b5cf6);
+}
+
+/* Pixel select */
+.pixel-select {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  border: 2px solid #2a2a2a;
+  border-radius: 0;
+  background: #ffffff;
+  padding: 8px 32px 8px 12px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232a2a2a' d='M2 4l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+}
+
+.pixel-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--theme-color, #8b5cf6);
+}
+
+/* Pixel scrollbar */
+.pixel-scrollbar::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.pixel-scrollbar::-webkit-scrollbar-track {
+  background: #e5e5e5;
+  border: 2px solid #2a2a2a;
+}
+
+.pixel-scrollbar::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border: 2px solid #2a2a2a;
+}
+
+.pixel-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a;
+}
+
+/* Pixel checkbox */
+.pixel-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #2a2a2a;
+  background: #ffffff;
+  cursor: pointer;
+  position: relative;
+}
+
+.pixel-checkbox:checked {
+  background: var(--theme-color, #8b5cf6);
+}
+
+.pixel-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 4px;
+  height: 10px;
+  border: solid #2a2a2a;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Pixel slider - theme color on drag */
+.pixel-slider:active::-webkit-slider-thumb {
+  background-color: var(--theme-color, #c0c0c0) !important;
+}
+
+.pixel-slider:active::-moz-range-thumb {
+  background-color: var(--theme-color, #c0c0c0) !important;
 }

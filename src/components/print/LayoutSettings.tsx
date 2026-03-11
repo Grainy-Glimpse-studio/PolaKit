@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { PrintSettings, FrameType, PaperType, ImageMode, CustomPaperSize, PaperOrientation } from '@/types';
-import { Button } from '@/components/ui';
 import {
   TemplateSelect,
   TemplateSlider,
@@ -74,12 +73,12 @@ export function LayoutSettings({
         settingPath="print.paperType"
       />
 
-      {/* Custom paper size input */}
+      {/* Custom paper size input - pixel style */}
       {(showCustomInput || settings.paperType === 'custom') && (
-        <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+        <div className="space-y-3 p-3 border-2 border-dashed border-pixel-border bg-gray-50">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block pixel-body text-pixel-text text-sm mb-1">
                 Width (mm)
               </label>
               <input
@@ -92,11 +91,11 @@ export function LayoutSettings({
                 }}
                 min={50}
                 max={500}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-2 py-1.5 pixel-body bg-white border-2 border-pixel-border focus:outline-none pixel-input"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block pixel-body text-pixel-text text-sm mb-1">
                 Height (mm)
               </label>
               <input
@@ -109,7 +108,7 @@ export function LayoutSettings({
                 }}
                 min={50}
                 max={500}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-2 py-1.5 pixel-body bg-white border-2 border-pixel-border focus:outline-none pixel-input"
               />
             </div>
           </div>
@@ -120,26 +119,30 @@ export function LayoutSettings({
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               placeholder="Name (optional)"
-              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 px-2 py-1.5 pixel-body bg-white border-2 border-pixel-border focus:outline-none pixel-input"
             />
-            <Button size="sm" onClick={handleSaveCustomPaper}>
+            <button
+              onClick={handleSaveCustomPaper}
+              className="px-3 py-1.5 pixel-body text-pixel-text border-2 border-pixel-border shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_rgba(0,0,0,0.25)]"
+              style={{ backgroundColor: 'var(--theme-color, #c0c0c0)' }}
+            >
               Save
-            </Button>
+            </button>
           </div>
         </div>
       )}
 
-      {/* Saved custom sizes */}
+      {/* Saved custom sizes - pixel style */}
       {customPaperSizes.length > 0 && (
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block pixel-body text-pixel-text">
             Saved Sizes
           </label>
           <div className="flex flex-wrap gap-1.5">
             {customPaperSizes.map((size) => (
               <div
                 key={size.id}
-                className="group flex items-center gap-1 px-2 py-1 text-xs bg-gray-100 rounded-full hover:bg-gray-200 cursor-pointer"
+                className="group flex items-center gap-1 px-2 py-1 pixel-body text-sm bg-white border-2 border-pixel-border hover:bg-gray-50 cursor-pointer"
                 onClick={() => handleApplyCustomSize(size)}
               >
                 <span>{size.name}</span>
@@ -148,7 +151,7 @@ export function LayoutSettings({
                     e.stopPropagation();
                     onRemoveCustomPaper?.(size.id);
                   }}
-                  className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="w-4 h-4 flex items-center justify-center hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   ×
                 </button>
@@ -158,7 +161,7 @@ export function LayoutSettings({
         </div>
       )}
 
-      {/* Paper Orientation */}
+      {/* Paper Orientation - with pixel icons */}
       <TemplateButtonGroup
         label="Orientation"
         value={settings.orientation}
@@ -169,7 +172,7 @@ export function LayoutSettings({
             label: 'Portrait',
             icon: (
               <svg className="w-4 h-5" viewBox="0 0 16 20" fill="currentColor">
-                <rect x="1" y="0" width="14" height="20" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                <rect x="2" y="1" width="12" height="18" stroke="currentColor" strokeWidth="2" fill="none" />
               </svg>
             ),
           },
@@ -178,7 +181,7 @@ export function LayoutSettings({
             label: 'Landscape',
             icon: (
               <svg className="w-5 h-4" viewBox="0 0 20 16" fill="currentColor">
-                <rect x="0" y="1" width="20" height="14" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                <rect x="1" y="2" width="18" height="12" stroke="currentColor" strokeWidth="2" fill="none" />
               </svg>
             ),
           },

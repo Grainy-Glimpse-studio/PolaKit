@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { DEFAULT_PRESETS, type Preset } from '@/store/gaussian-store';
-import { Button } from '@/components/ui';
 
 interface PresetManagerProps {
   activePreset: string | null;
@@ -10,11 +9,35 @@ interface PresetManagerProps {
   onDelete: (key: string) => void;
 }
 
-const presetIcons: Record<string, string> = {
-  instagram: '📸',
-  story: '📱',
-  minimal: '✨',
-  dramatic: '🎭',
+// Pixel-style icons for presets
+const presetPixelIcons: Record<string, React.ReactNode> = {
+  instagram: (
+    <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+      <rect x="2" y="2" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" />
+      <rect x="5" y="5" width="6" height="6" />
+      <rect x="11" y="3" width="2" height="2" />
+    </svg>
+  ),
+  story: (
+    <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+      <rect x="4" y="1" width="8" height="14" fill="none" stroke="currentColor" strokeWidth="2" />
+      <rect x="6" y="12" width="4" height="2" />
+    </svg>
+  ),
+  minimal: (
+    <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+      <rect x="4" y="4" width="2" height="2" />
+      <rect x="7" y="7" width="2" height="2" />
+      <rect x="10" y="10" width="2" height="2" />
+    </svg>
+  ),
+  dramatic: (
+    <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+      <rect x="3" y="6" width="4" height="4" />
+      <rect x="9" y="6" width="4" height="4" />
+      <rect x="6" y="10" width="4" height="2" />
+    </svg>
+  ),
 };
 
 export function PresetManager({
@@ -37,54 +60,76 @@ export function PresetManager({
 
   return (
     <div className="space-y-4">
-      {/* Default presets */}
+      {/* Default presets - pixel style grid with retro effects */}
       <div className="grid grid-cols-2 gap-2">
         {Object.entries(DEFAULT_PRESETS).map(([key, preset]) => (
           <button
             key={key}
             onClick={() => onApply(key)}
             className={`
-              relative px-3 py-2.5 text-sm rounded-xl border-2 transition-all
-              ${activePreset === key
-                ? 'bg-gradient-to-br from-violet-500 to-purple-600 text-white border-transparent shadow-md'
-                : 'bg-white/50 text-gray-700 border-gray-200 hover:border-violet-300 hover:bg-violet-50'
-              }
+              pixel-toggle
+              relative px-3 py-2.5 pixel-body
+              flex items-center gap-2
+              ${activePreset === key ? 'active' : ''}
             `}
+            data-active={activePreset === key}
           >
-            <span className="mr-1.5">{presetIcons[key] || '🎨'}</span>
+            {presetPixelIcons[key] || (
+              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                <rect x="3" y="3" width="10" height="10" />
+              </svg>
+            )}
             {preset.name}
           </button>
         ))}
       </div>
 
-      {/* Custom presets */}
+      {/* Custom presets - pixel style */}
       {Object.keys(customPresets).length > 0 && (
-        <div className="pt-3 border-t border-gray-100">
-          <p className="text-xs uppercase tracking-wider text-gray-400 mb-2">Custom</p>
+        <div className="pt-3 border-t-2 border-dashed border-pixel-border">
+          <p className="pixel-body text-gray-500 mb-2 text-sm">CUSTOM</p>
           <div className="space-y-1.5">
             {Object.entries(customPresets).map(([key, preset]) => (
               <div
                 key={key}
                 className={`
-                  flex items-center justify-between px-3 py-2 rounded-xl transition-all
+                  flex items-center justify-between px-3 py-2
+                  border-2 border-pixel-border
+                  transition-all
                   ${activePreset === key
-                    ? 'bg-violet-50 ring-2 ring-violet-200'
-                    : 'bg-gray-50 hover:bg-gray-100'
+                    ? 'bg-red-50'
+                    : 'bg-white hover:bg-gray-50'
                   }
                 `}
+                style={activePreset === key ? { borderColor: 'var(--theme-color, #e41b13)' } : undefined}
               >
                 <button
                   onClick={() => onApply(key)}
-                  className="flex-1 text-left text-sm font-medium text-gray-700"
+                  className="flex-1 text-left pixel-body text-pixel-text flex items-center gap-2"
                 >
-                  💾 {preset.name}
+                  {/* Pixel floppy disk icon */}
+                  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="2" y="2" width="12" height="12" />
+                    <rect x="4" y="2" width="6" height="4" fill="white" />
+                    <rect x="4" y="9" width="8" height="4" fill="white" />
+                  </svg>
+                  {preset.name}
                 </button>
                 <button
                   onClick={() => onDelete(key)}
-                  className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                  className="text-gray-400 hover:text-pixel-rose transition-colors p-1"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  {/* Pixel X icon */}
+                  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="3" y="5" width="2" height="2" />
+                    <rect x="5" y="7" width="2" height="2" />
+                    <rect x="7" y="9" width="2" height="2" />
+                    <rect x="9" y="7" width="2" height="2" />
+                    <rect x="11" y="5" width="2" height="2" />
+                    <rect x="5" y="9" width="2" height="2" />
+                    <rect x="9" y="9" width="2" height="2" />
+                    <rect x="3" y="11" width="2" height="2" />
+                    <rect x="11" y="11" width="2" height="2" />
                   </svg>
                 </button>
               </div>
@@ -93,7 +138,7 @@ export function PresetManager({
         </div>
       )}
 
-      {/* Save new preset */}
+      {/* Save new preset - pixel style */}
       {showSave ? (
         <div className="space-y-2">
           <input
@@ -101,26 +146,36 @@ export function PresetManager({
             value={presetName}
             onChange={(e) => setPresetName(e.target.value)}
             placeholder="Preset name..."
-            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-300"
+            className="pixel-input w-full"
             autoFocus
             onKeyDown={(e) => e.key === 'Enter' && handleSave()}
           />
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleSave} className="flex-1">
+            <button
+              onClick={handleSave}
+              className="flex-1 px-3 py-2 pixel-body text-pixel-text border-2 border-pixel-border shadow-[3px_3px_0px_rgba(0,0,0,0.2)] hover:shadow-[4px_4px_0px_rgba(0,0,0,0.25)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_rgba(0,0,0,0.2)]"
+              style={{ backgroundColor: 'var(--theme-color, #c0c0c0)' }}
+            >
               Save
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowSave(false)}>
+            </button>
+            <button
+              onClick={() => setShowSave(false)}
+              className="px-3 py-2 pixel-body bg-white text-pixel-text border-2 border-pixel-border shadow-[3px_3px_0px_rgba(0,0,0,0.2)] hover:bg-gray-50"
+            >
               Cancel
-            </Button>
+            </button>
           </div>
         </div>
       ) : (
         <button
           onClick={() => setShowSave(true)}
-          className="w-full px-3 py-2 text-sm text-gray-500 hover:text-violet-600 border-2 border-dashed border-gray-200 hover:border-violet-300 rounded-xl transition-colors flex items-center justify-center gap-2"
+          className="w-full px-3 py-2 pixel-body text-gray-500 hover:text-pixel-text border-2 border-dashed border-pixel-border transition-colors flex items-center justify-center gap-2"
+          style={{ '--hover-border': 'var(--theme-color)' } as React.CSSProperties}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          {/* Pixel plus icon */}
+          <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+            <rect x="7" y="3" width="2" height="10" />
+            <rect x="3" y="7" width="10" height="2" />
           </svg>
           Save as Preset
         </button>
