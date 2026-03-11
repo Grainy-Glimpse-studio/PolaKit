@@ -13,6 +13,7 @@ export function useImageProcessor() {
     removeImage,
     clearImages,
     updateSettings,
+    updateImageName,
     processAllImages,
     processImage,
   } = useCropperStore();
@@ -44,6 +45,7 @@ export function useImageProcessor() {
     removeImage,
     clearImages,
     updateSettings,
+    updateImageName,
     processAllImages: handleProcess,
     processImage,
   };
