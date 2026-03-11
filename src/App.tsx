@@ -4,6 +4,8 @@ import { Cropper } from '@/pages/Cropper';
 import { PrintLayout } from '@/pages/PrintLayout';
 import { GaussianBg } from '@/pages/GaussianBg';
 import { QuickProcess } from '@/pages/QuickProcess';
+import { Prototype } from '@/pages/Prototype';
+import { About } from '@/pages/About';
 
 export default function App() {
   return (
@@ -14,6 +16,8 @@ export default function App() {
         <Route path="/print" element={<PrintLayout />} />
         <Route path="/gaussian" element={<GaussianBg />} />
         <Route path="/quick" element={<QuickProcess />} />
+        <Route path="/prototype" element={<Prototype />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </BrowserRouter>
   );

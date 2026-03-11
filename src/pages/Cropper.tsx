@@ -56,7 +56,7 @@ export function Cropper() {
   };
 
   return (
-    <PixelCanvas>
+    <PixelCanvas themeColor="#fdc800">
       <PixelPageLayout
         title="Cropper"
         subtitle="Remove borders & fix perspective"

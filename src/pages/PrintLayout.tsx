@@ -63,7 +63,7 @@ export function PrintLayout({ frameType = 'polaroid' }: PrintLayoutProps) {
   ) : null;
 
   return (
-    <PixelCanvas>
+    <PixelCanvas themeColor="#00a3e2">
       <PixelPageLayout
         title="Print"
         subtitle="Arrange & print your photos"

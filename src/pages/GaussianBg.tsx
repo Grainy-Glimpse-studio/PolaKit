@@ -117,7 +117,7 @@ export function GaussianBg() {
   ) : null;
 
   return (
-    <PixelCanvas>
+    <PixelCanvas themeColor="#f97316">
       <PixelPageLayout
         title="Blur BG"
         subtitle="Create stunning blurred backgrounds"

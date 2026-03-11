@@ -9,7 +9,7 @@ export const THEME_COLORS = {
 
 export type ThemeColorKey = keyof typeof THEME_COLORS;
 
-const ThemeColorContext = createContext<string>(THEME_COLORS.red);
+const ThemeColorContext = createContext<string>(THEME_COLORS.orange);
 
 interface ThemeColorProviderProps {
   color: string;

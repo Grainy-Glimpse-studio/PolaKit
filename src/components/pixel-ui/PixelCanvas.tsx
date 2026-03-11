@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { CanvasToolbar } from './CanvasToolbar';
+import { PixelBall } from './PixelBall';
 
 // 8-bit sound generator using Web Audio API
 class PixelSoundGenerator {
@@ -89,12 +90,13 @@ class PixelSoundGenerator {
 interface PixelCanvasProps {
   children: ReactNode;
   showToolbar?: boolean;
+  themeColor?: string;
 }
 
 // Default brush size is now bigger (8px)
 const DEFAULT_BRUSH_SIZE = 8;
 
-export function PixelCanvas({ children, showToolbar = true }: PixelCanvasProps) {
+export function PixelCanvas({ children, showToolbar = true, themeColor }: PixelCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -102,6 +104,7 @@ export function PixelCanvas({ children, showToolbar = true }: PixelCanvasProps) 
   const [brushSize, setBrushSize] = useState(DEFAULT_BRUSH_SIZE);
   const [isEraser, setIsEraser] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [eraserPos, setEraserPos] = useState<{ x: number; y: number } | null>(null);
   const soundRef = useRef<PixelSoundGenerator | null>(null);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
   const soundThrottleRef = useRef<number>(0);
@@ -233,23 +236,41 @@ export function PixelCanvas({ children, showToolbar = true }: PixelCanvasProps) 
   // Direct window event handlers for drawing
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
-      // Only draw if clicking on the background (not on UI elements)
+      // Only draw if clicking on the background (not on interactive UI elements)
       const target = e.target as HTMLElement;
-      if (target.closest('.pixel-ui-content')) return;
+      // Check if clicking on actual UI elements (panels, buttons, inputs, etc.)
+      if (target.closest('.pixel-panel, button, input, select, a, [role="button"], header, .pixel-ball')) return;
 
       const coords = getCanvasCoordinates(e);
       if (!coords) return;
 
+      // Prevent text selection when drawing
+      e.preventDefault();
+
       setIsDrawing(true);
       lastPosRef.current = coords;
+
+      // Start tracking eraser position immediately if in eraser mode
+      if (isEraser) {
+        setEraserPos(coords);
+      }
+
       drawPixel(coords.x, coords.y);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDrawing) return;
-
       const coords = getCanvasCoordinates(e);
       if (!coords) return;
+
+      // Track eraser position for ball interaction (only when drawing)
+      if (isEraser && isDrawing) {
+        setEraserPos(coords);
+      }
+
+      if (!isDrawing) return;
+
+      // Prevent text selection while drawing
+      e.preventDefault();
 
       if (lastPosRef.current) {
         drawLine(lastPosRef.current, coords);
@@ -260,25 +281,37 @@ export function PixelCanvas({ children, showToolbar = true }: PixelCanvasProps) 
     const handleMouseUp = () => {
       setIsDrawing(false);
       lastPosRef.current = null;
+      setEraserPos(null);
     };
 
     const handleTouchStart = (e: TouchEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest('.pixel-ui-content')) return;
+      if (target.closest('.pixel-panel, button, input, select, a, [role="button"], header, .pixel-ball')) return;
 
       const coords = getCanvasCoordinates(e);
       if (!coords) return;
 
       setIsDrawing(true);
       lastPosRef.current = coords;
+
+      // Start tracking eraser position immediately if in eraser mode
+      if (isEraser) {
+        setEraserPos(coords);
+      }
+
       drawPixel(coords.x, coords.y);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (!isDrawing) return;
-
       const coords = getCanvasCoordinates(e);
       if (!coords) return;
+
+      // Track eraser position for ball interaction (only when drawing)
+      if (isEraser && isDrawing) {
+        setEraserPos(coords);
+      }
+
+      if (!isDrawing) return;
 
       if (lastPosRef.current) {
         drawLine(lastPosRef.current, coords);
@@ -289,6 +322,7 @@ export function PixelCanvas({ children, showToolbar = true }: PixelCanvasProps) 
     const handleTouchEnd = () => {
       setIsDrawing(false);
       lastPosRef.current = null;
+      setEraserPos(null);
     };
 
     window.addEventListener('mousedown', handleMouseDown);
@@ -306,7 +340,7 @@ export function PixelCanvas({ children, showToolbar = true }: PixelCanvasProps) 
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDrawing, getCanvasCoordinates, drawPixel, drawLine]);
+  }, [isDrawing, isEraser, getCanvasCoordinates, drawPixel, drawLine]);
 
   const handleClear = useCallback(() => {
     const canvas = canvasRef.current;
@@ -322,10 +356,11 @@ export function PixelCanvas({ children, showToolbar = true }: PixelCanvasProps) 
       {/* Drawing canvas (background) */}
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 w-full h-full"
+        className="fixed inset-0 w-full h-full select-none"
         style={{
           zIndex: 0,
           cursor: 'crosshair',
+          pointerEvents: 'auto',
         }}
       />
 
@@ -357,8 +392,35 @@ export function PixelCanvas({ children, showToolbar = true }: PixelCanvasProps) 
         />
       )}
 
-      {/* UI content layer - marked so we can detect clicks on it */}
-      <div className="pixel-ui-content relative" style={{ zIndex: 10 }}>
+      {/* Pixel ball - only render if themeColor is provided */}
+      {themeColor && (
+        <PixelBall
+          color={themeColor}
+          canvasRef={canvasRef}
+          isErasing={isEraser && isDrawing}
+          eraserPos={eraserPos}
+          brushSize={brushSize}
+        />
+      )}
+
+      {/* UI content layer - prevent selection except in inputs */}
+      <div
+        className="pixel-ui-content relative"
+        style={{
+          zIndex: 10,
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        }}
+      >
+        {/* Re-enable selection for input elements */}
+        <style>{`
+          .pixel-ui-content input,
+          .pixel-ui-content textarea,
+          .pixel-ui-content [contenteditable="true"] {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+          }
+        `}</style>
         {children}
       </div>
     </div>

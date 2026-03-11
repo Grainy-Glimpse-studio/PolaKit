@@ -15,7 +15,7 @@ const PALETTE_COLORS = [
   '#6366f1', // indigo
 ];
 
-const BRUSH_SIZES = [1, 2, 4];
+const BRUSH_SIZES = [4, 8, 16, 32];
 
 interface CanvasToolbarProps {
   selectedColor: string;
@@ -103,7 +103,9 @@ export function CanvasToolbar({
 
           {/* Brush size */}
           <div>
-            <div className="pixel-body text-pixel-text text-sm mb-2">Brush</div>
+            <div className="pixel-body text-pixel-text text-sm mb-2">
+              Size: {brushSize}px
+            </div>
             <div className="flex gap-1.5">
               {BRUSH_SIZES.map((size) => (
                 <button
@@ -114,14 +116,14 @@ export function CanvasToolbar({
                     flex items-center justify-center
                     ${brushSize === size ? 'active' : ''}
                   `}
-                  title={`${size}px brush`}
+                  title={`${size}px`}
                   data-active={brushSize === size}
                 >
                   <div
-                    className={`${brushSize === size ? 'bg-pixel-text' : 'bg-pixel-text'}`}
+                    className="bg-pixel-text"
                     style={{
-                      width: `${size * 2 + 2}px`,
-                      height: `${size * 2 + 2}px`,
+                      width: `${Math.min(size / 2 + 2, 20)}px`,
+                      height: `${Math.min(size / 2 + 2, 20)}px`,
                     }}
                   />
                 </button>
@@ -131,23 +133,24 @@ export function CanvasToolbar({
 
           {/* Tools */}
           <div className="flex gap-1">
-            {/* Eraser */}
-            <PixelIconButton
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              }
-              label="Eraser"
-              size="sm"
-              active={isEraser}
+            {/* Eraser - pink rectangle icon to look like eraser */}
+            <button
               onClick={onEraserToggle}
-            />
+              className={`
+                pixel-toggle w-8 h-8 flex items-center justify-center
+                ${isEraser ? 'active ring-2 ring-pink-400' : ''}
+              `}
+              title="Eraser (toggle)"
+              data-active={isEraser}
+            >
+              {/* Eraser icon - simple rectangle */}
+              <div
+                className="w-5 h-3 rounded-sm border border-black/30"
+                style={{
+                  backgroundColor: isEraser ? '#f472b6' : '#fce7f3',
+                }}
+              />
+            </button>
 
             {/* Clear */}
             <PixelIconButton
