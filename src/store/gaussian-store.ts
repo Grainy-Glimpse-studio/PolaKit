@@ -3,6 +3,8 @@ import { devtools, persist } from 'zustand/middleware';
 
 export type AspectRatio = '1:1' | '4:5' | '9:16' | '16:9' | 'custom';
 export type BgType = 'blur' | 'solid' | 'image' | 'video';
+export type NamingMode = 'suffix' | 'numbered' | 'original';
+export type ExportFormat = 'jpg' | 'mp4' | 'gif';
 
 export interface Preset {
   name: string;
@@ -27,6 +29,9 @@ export interface GaussianSettings {
   bgOffsetY: number;
   brightness: number;
   bgColor: string;
+  bgImageUrl: string;
+  bgVideoUrl: string;
+  bgVideoTime: number;
   shadow: boolean;
   shadowBlur: number;
   shadowOpacity: number;
@@ -44,6 +49,9 @@ export interface GaussianState {
   images: GaussianImage[];
   currentIndex: number;
   applyMode: 'all' | 'single';
+  namingMode: NamingMode;
+  exportFormat: ExportFormat;
+  videoDuration: number; // seconds for video/gif export
   settings: GaussianSettings;
   customPresets: Record<string, Preset>;
   activePreset: string | null;
@@ -57,6 +65,9 @@ interface GaussianActions {
   nextImage: () => void;
   prevImage: () => void;
   setApplyMode: (mode: 'all' | 'single') => void;
+  setNamingMode: (mode: NamingMode) => void;
+  setExportFormat: (format: ExportFormat) => void;
+  setVideoDuration: (duration: number) => void;
   updateSettings: (settings: Partial<GaussianSettings>) => void;
   updateImageSettings: (id: string, settings: Partial<GaussianSettings>) => void;
   applyPreset: (presetKey: string) => void;
@@ -114,6 +125,9 @@ const defaultSettings: GaussianSettings = {
   bgOffsetY: 0,
   brightness: 100,
   bgColor: '#ffffff',
+  bgImageUrl: '',
+  bgVideoUrl: '',
+  bgVideoTime: 0,
   shadow: true,
   shadowBlur: 25,
   shadowOpacity: 35,
@@ -129,6 +143,9 @@ export const useGaussianStore = create<GaussianStore>()(
         images: [],
         currentIndex: 0,
         applyMode: 'all',
+        namingMode: 'suffix',
+        exportFormat: 'jpg',
+        videoDuration: 3,
         settings: defaultSettings,
         customPresets: {},
         activePreset: null,
@@ -178,6 +195,12 @@ export const useGaussianStore = create<GaussianStore>()(
         },
 
         setApplyMode: (mode) => set({ applyMode: mode }),
+
+        setNamingMode: (mode) => set({ namingMode: mode }),
+
+        setExportFormat: (format) => set({ exportFormat: format }),
+
+        setVideoDuration: (duration) => set({ videoDuration: duration }),
 
         updateSettings: (newSettings) => {
           set((state) => ({
@@ -249,6 +272,9 @@ export const useGaussianStore = create<GaussianStore>()(
         partialize: (state) => ({
           settings: state.settings,
           customPresets: state.customPresets,
+          namingMode: state.namingMode,
+          exportFormat: state.exportFormat,
+          videoDuration: state.videoDuration,
         }),
       }
     )

@@ -7,6 +7,8 @@ import {
   PolaroidSettings,
   PresetManager,
   ImageNavigation,
+  ApplyModeToggle,
+  ExportSettings,
 } from '@/components/gaussian';
 import { Button, PageLayout, Panel } from '@/components/ui';
 
@@ -17,20 +19,31 @@ export function GaussianBg() {
     currentIndex,
     loadedImage,
     settings,
+    applyMode,
     activePreset,
     customPresets,
     exporting,
     hasImages,
+    hasVideo,
     addImages,
     clearImages,
     nextImage,
     prevImage,
     setCurrentIndex,
     updateSettings,
+    setApplyMode,
+    namingMode,
+    setNamingMode,
+    exportFormat,
+    setExportFormat,
+    videoDuration,
+    setVideoDuration,
     applyPreset,
     saveCustomPreset,
     deleteCustomPreset,
     exportSingle,
+    exportVideo,
+    exportGif,
     exportAll,
   } = useGaussianPreview();
 
@@ -38,6 +51,30 @@ export function GaussianBg() {
     const imageFiles = files.filter((f) => f.type.startsWith('image/'));
     if (imageFiles.length > 0) {
       addImages(imageFiles);
+    }
+  };
+
+  const handleExport = () => {
+    switch (exportFormat) {
+      case 'mp4':
+        exportVideo();
+        break;
+      case 'gif':
+        exportGif();
+        break;
+      default:
+        exportSingle();
+    }
+  };
+
+  const getExportLabel = () => {
+    switch (exportFormat) {
+      case 'mp4':
+        return 'Export MP4';
+      case 'gif':
+        return 'Export GIF';
+      default:
+        return 'Export';
     }
   };
 
@@ -49,17 +86,18 @@ export function GaussianBg() {
       <Button
         variant="secondary"
         size="sm"
-        onClick={exportSingle}
-        disabled={exporting || !loadedImage}
+        onClick={handleExport}
+        disabled={exporting || !loadedImage || (exportFormat !== 'jpg' && !hasVideo)}
         icon={
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
         }
+        loading={exporting}
       >
-        Export
+        {getExportLabel()}
       </Button>
-      {images.length > 1 && (
+      {images.length > 1 && exportFormat === 'jpg' && (
         <Button
           variant="primary"
           size="sm"
@@ -120,6 +158,12 @@ export function GaussianBg() {
                 <PreviewCanvas
                   canvasRef={canvasRef}
                   hasImage={!!loadedImage}
+                  onDrag={(dx, dy) => {
+                    updateSettings({
+                      polaroidOffsetX: settings.polaroidOffsetX + dx,
+                      polaroidOffsetY: settings.polaroidOffsetY + dy,
+                    });
+                  }}
                 />
               </Panel>
 
@@ -142,6 +186,16 @@ export function GaussianBg() {
 
         {/* Right Sidebar */}
         <div className="lg:col-span-3 space-y-4">
+          {/* Apply Mode Toggle - only show when multiple images */}
+          {images.length > 1 && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-3">
+              <ApplyModeToggle
+                mode={applyMode}
+                onChange={setApplyMode}
+              />
+            </div>
+          )}
+
           <Panel title="Background">
             <BackgroundSettings
               settings={settings}
@@ -153,6 +207,20 @@ export function GaussianBg() {
             <PolaroidSettings
               settings={settings}
               onUpdate={updateSettings}
+            />
+          </Panel>
+
+          <Panel title="Export">
+            <ExportSettings
+              settings={settings}
+              onUpdate={updateSettings}
+              namingMode={namingMode}
+              onNamingModeChange={setNamingMode}
+              exportFormat={exportFormat}
+              onExportFormatChange={setExportFormat}
+              videoDuration={videoDuration}
+              onVideoDurationChange={setVideoDuration}
+              hasVideo={hasVideo}
             />
           </Panel>
 

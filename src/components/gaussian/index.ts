@@ -4,3 +4,7 @@ export * from './BackgroundSettings';
 export * from './PolaroidSettings';
 export * from './PresetManager';
 export * from './ImageNavigation';
+export * from './ApplyModeToggle';
+export * from './ExportSettings';
+export * from './ImageLibrary';
+export * from './VideoLibrary';

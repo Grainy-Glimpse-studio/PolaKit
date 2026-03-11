@@ -1,11 +1,27 @@
 import type { RefObject } from 'react';
+import { useCanvasDrag } from '@/hooks/useCanvasDrag';
 
 interface PreviewCanvasProps {
   canvasRef: RefObject<HTMLCanvasElement | null>;
   hasImage: boolean;
+  onDrag?: (deltaX: number, deltaY: number) => void;
+  dragEnabled?: boolean;
 }
 
-export function PreviewCanvas({ canvasRef, hasImage }: PreviewCanvasProps) {
+export function PreviewCanvas({
+  canvasRef,
+  hasImage,
+  onDrag,
+  dragEnabled = true,
+}: PreviewCanvasProps) {
+  const { isDragging, handleMouseDown, handleTouchStart } = useCanvasDrag({
+    onDrag: (dx, dy) => {
+      onDrag?.(dx, dy);
+    },
+    disabled: !hasImage || !onDrag || !dragEnabled,
+    scale: 0.5, // Match preview scale
+  });
+
   if (!hasImage) {
     return (
       <div className="aspect-square flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-8">
@@ -40,11 +56,26 @@ export function PreviewCanvas({ canvasRef, hasImage }: PreviewCanvasProps) {
       {/* Canvas */}
       <canvas
         ref={canvasRef}
-        className="relative max-w-full max-h-[60vh] object-contain shadow-2xl"
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        className={`relative max-w-full max-h-[60vh] object-contain shadow-2xl select-none ${
+          onDrag && dragEnabled ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''
+        }`}
         style={{
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.1)',
+          touchAction: 'none',
         }}
       />
+
+      {/* Drag hint */}
+      {onDrag && dragEnabled && (
+        <div className="absolute bottom-3 left-3 px-2 py-1 bg-black/50 backdrop-blur-sm rounded text-xs text-white/70 flex items-center gap-1">
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+          Drag to move
+        </div>
+      )}
 
       {/* Zoom indicator (decorative) */}
       <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/50 backdrop-blur-sm rounded text-xs text-white/70">

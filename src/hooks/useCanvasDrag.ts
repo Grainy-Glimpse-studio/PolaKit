@@ -1,99 +1,89 @@
-import { useRef, useCallback, useEffect } from 'react';
-import type { Position } from '@/types';
+import { useCallback, useRef, useState, useEffect } from 'react';
 
 interface UseCanvasDragOptions {
-  onDragStart?: (id: string) => void;
-  onDragMove?: (id: string, delta: Position) => void;
-  onDragEnd?: (id: string, totalDelta: Position) => void;
+  onDrag: (deltaX: number, deltaY: number) => void;
+  onDragEnd?: () => void;
+  scale?: number;
+  disabled?: boolean;
 }
 
-export function useCanvasDrag(
-  canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  getImageAtPoint: (point: Position) => string | null,
-  options: UseCanvasDragOptions = {}
-) {
-  const { onDragStart, onDragMove, onDragEnd } = options;
+interface UseCanvasDragReturn {
+  isDragging: boolean;
+  handleMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+  handleTouchStart: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+}
 
-  const draggingRef = useRef<{
-    id: string;
-    startX: number;
-    startY: number;
-    lastX: number;
-    lastY: number;
-  } | null>(null);
+export function useCanvasDrag({
+  onDrag,
+  onDragEnd,
+  scale = 1,
+  disabled = false,
+}: UseCanvasDragOptions): UseCanvasDragReturn {
+  const [isDragging, setIsDragging] = useState(false);
+  const lastPosition = useRef({ x: 0, y: 0 });
 
-  const handleMouseDown = useCallback(
-    (e: MouseEvent) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (disabled) return;
+    e.preventDefault();
+    setIsDragging(true);
+    lastPosition.current = { x: e.clientX, y: e.clientY };
+  }, [disabled]);
 
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const imageId = getImageAtPoint({ x, y });
-      if (imageId) {
-        draggingRef.current = {
-          id: imageId,
-          startX: x,
-          startY: y,
-          lastX: x,
-          lastY: y,
-        };
-        onDragStart?.(imageId);
-      }
-    },
-    [canvasRef, getImageAtPoint, onDragStart]
-  );
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!draggingRef.current) return;
-
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const delta: Position = {
-        x: x - draggingRef.current.lastX,
-        y: y - draggingRef.current.lastY,
-      };
-
-      draggingRef.current.lastX = x;
-      draggingRef.current.lastY = y;
-
-      onDragMove?.(draggingRef.current.id, delta);
-    },
-    [canvasRef, onDragMove]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    if (!draggingRef.current) return;
-
-    const totalDelta: Position = {
-      x: draggingRef.current.lastX - draggingRef.current.startX,
-      y: draggingRef.current.lastY - draggingRef.current.startY,
-    };
-
-    onDragEnd?.(draggingRef.current.id, totalDelta);
-    draggingRef.current = null;
-  }, [onDragEnd]);
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (disabled) return;
+    if (e.touches.length !== 1) return;
+    e.preventDefault();
+    setIsDragging(true);
+    const touch = e.touches[0];
+    lastPosition.current = { x: touch.clientX, y: touch.clientY };
+  }, [disabled]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!isDragging) return;
 
-    canvas.addEventListener('mousedown', handleMouseDown);
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = (e.clientX - lastPosition.current.x) / scale;
+      const deltaY = (e.clientY - lastPosition.current.y) / scale;
+
+      onDrag(deltaX, deltaY);
+      lastPosition.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      e.preventDefault();
+
+      const touch = e.touches[0];
+      const deltaX = (touch.clientX - lastPosition.current.x) / scale;
+      const deltaY = (touch.clientY - lastPosition.current.y) / scale;
+
+      onDrag(deltaX, deltaY);
+      lastPosition.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const handleEnd = () => {
+      setIsDragging(false);
+      onDragEnd?.();
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mouseup', handleEnd);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleEnd);
+    window.addEventListener('touchcancel', handleEnd);
 
     return () => {
-      canvas.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleEnd);
+      window.removeEventListener('touchcancel', handleEnd);
     };
-  }, [handleMouseDown, handleMouseMove, handleMouseUp, canvasRef]);
+  }, [isDragging, onDrag, onDragEnd, scale]);
+
+  return {
+    isDragging,
+    handleMouseDown,
+    handleTouchStart,
+  };
 }
